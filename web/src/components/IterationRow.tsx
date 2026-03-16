@@ -6,6 +6,30 @@ import { StrategyBadge } from "./StrategyBadge";
 import { StatusBadge } from "./StatusBadge";
 import { ScoreBar } from "./ScoreBar";
 
+function ImageThumbnail({ url }: { url: string }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={url}
+        alt="Generated"
+        className="h-12 w-12 rounded-lg object-cover cursor-pointer border border-border hover:border-accent transition-colors"
+        onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
+      />
+      {expanded && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+          onClick={() => setExpanded(false)}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={url} alt="Generated (full)" className="max-h-[80vh] max-w-[80vw] rounded-2xl" />
+        </div>
+      )}
+    </>
+  );
+}
+
 export function IterationRow({ iteration }: { iteration: IterationResult }) {
   const [expanded, setExpanded] = useState(false);
   const isBaseline = iteration.iteration === 0;
@@ -66,11 +90,30 @@ export function IterationRow({ iteration }: { iteration: IterationResult }) {
                     className="rounded-xl border border-border bg-surface p-3"
                   >
                     <div className="mb-1 flex items-center justify-between">
-                      <span className="text-sm font-mono font-medium">
-                        {score.testCaseId}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {score.imageUrl && (
+                          <ImageThumbnail url={score.imageUrl} />
+                        )}
+                        <span className="text-sm font-mono font-medium">
+                          {score.testCaseId}
+                        </span>
+                      </div>
                       <ScoreBar value={score.value} />
                     </div>
+                    {score.dimensions && (
+                      <div className="mt-1 mb-1 flex flex-wrap gap-2">
+                        {Object.entries(score.dimensions).map(([dim, val]) => (
+                          <span
+                            key={dim}
+                            className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-mono ${
+                              val >= 80 ? "bg-kept-light text-kept" : val >= 60 ? "bg-amber-500/10 text-amber-600" : "bg-reverted-light text-reverted"
+                            }`}
+                          >
+                            {dim}: {val}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     <p className="text-xs leading-relaxed text-text-muted">
                       {score.reasoning}
                     </p>

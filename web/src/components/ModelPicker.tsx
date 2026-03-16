@@ -6,12 +6,15 @@ import { MODELS } from "@/lib/models";
 interface ModelPickerProps {
   value: string;
   onChange: (modelId: string) => void;
+  /** Expose whether the selected model is image-gen */
+  onModeChange?: (isImageGen: boolean) => void;
 }
 
 type ProviderMode = "max" | "api";
 
-export function ModelPicker({ value, onChange }: ModelPickerProps) {
+export function ModelPicker({ value, onChange, onModeChange }: ModelPickerProps) {
   const currentModel = MODELS.find((m) => m.id === value);
+  const isImageGen = currentModel?.provider === "image-gen";
   const [mode, setMode] = useState<ProviderMode>(
     currentModel?.provider === "claude-cli" ? "max" : "api",
   );
@@ -26,15 +29,33 @@ export function ModelPicker({ value, onChange }: ModelPickerProps) {
     [mode],
   );
 
+  // Split API models into text and image-gen groups
+  const textModels = useMemo(
+    () => filteredModels.filter((m) => m.provider !== "image-gen"),
+    [filteredModels],
+  );
+  const imageModels = useMemo(
+    () => filteredModels.filter((m) => m.provider === "image-gen"),
+    [filteredModels],
+  );
+
   const handleModeSwitch = (newMode: ProviderMode) => {
     setMode(newMode);
-    // Select first model in the new group
     const first = MODELS.find((m) =>
       newMode === "max"
         ? m.provider === "claude-cli"
         : m.provider !== "claude-cli",
     );
-    if (first) onChange(first.id);
+    if (first) {
+      onChange(first.id);
+      onModeChange?.(first.provider === "image-gen");
+    }
+  };
+
+  const handleModelChange = (modelId: string) => {
+    onChange(modelId);
+    const model = MODELS.find((m) => m.id === modelId);
+    onModeChange?.(model?.provider === "image-gen");
   };
 
   return (
@@ -72,18 +93,40 @@ export function ModelPicker({ value, onChange }: ModelPickerProps) {
           : "Requires ANTHROPIC_API_KEY or OPENAI_API_KEY"}
       </p>
 
-      {/* Model select */}
+      {/* Model select with optgroup separators in API mode */}
       <select
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => handleModelChange(e.target.value)}
         className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none"
       >
-        {filteredModels.map((m) => (
-          <option key={m.id} value={m.id}>
-            {m.label}
-          </option>
-        ))}
+        {mode === "api" ? (
+          <>
+            <optgroup label="Text Models">
+              {textModels.map((m) => (
+                <option key={m.id} value={m.id}>{m.label}</option>
+              ))}
+            </optgroup>
+            {imageModels.length > 0 && (
+              <optgroup label="Image Generation">
+                {imageModels.map((m) => (
+                  <option key={m.id} value={m.id}>{m.label}</option>
+                ))}
+              </optgroup>
+            )}
+          </>
+        ) : (
+          filteredModels.map((m) => (
+            <option key={m.id} value={m.id}>{m.label}</option>
+          ))
+        )}
       </select>
+
+      {/* Image-gen mode hint */}
+      {isImageGen && (
+        <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+          Image generation mode — test cases should describe the desired image. Scoring evaluates the generated image quality.
+        </p>
+      )}
     </div>
   );
 }

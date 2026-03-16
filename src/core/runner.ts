@@ -3,7 +3,7 @@ import { join } from "node:path";
 import consola from "consola";
 import { scorePrompt, type EvalFunction } from "./scorer.js";
 import { generateMutation } from "./mutator.js";
-import { appendIteration, hashPrompt, readHistory } from "./history.js";
+import { appendIteration, hashPrompt, readHistory, rebuildState } from "./history.js";
 import { generatePNG } from "./chart.js";
 import type {
   IterationResult,
@@ -29,12 +29,19 @@ export interface RunOptions {
   onIteration?: (result: IterationResult) => void;
   /** AbortSignal for cancel support */
   signal?: AbortSignal;
+  /** Human strategy document content to guide the optimizer */
+  strategyDoc?: string;
+  /** Resume from a previous run */
+  resumeFrom?: {
+    history: IterationResult[];
+    prompt: string;
+  };
 }
 
 // ── Main Optimization Loop ──────────────────────────────────
 
 export async function run(options: RunOptions): Promise<RunReport> {
-  const { promptPath, testCasesPath, config, outputDir, evalFn, onIteration, signal } = options;
+  const { promptPath, testCasesPath, config, outputDir, evalFn, onIteration, signal, strategyDoc, resumeFrom } = options;
   const startedAt = new Date().toISOString();
   const plateauThreshold = config.plateauThreshold ?? 5;
 
@@ -81,35 +88,68 @@ export async function run(options: RunOptions): Promise<RunReport> {
     expand: { attempts: 0, kept: 0 },
   };
 
-  // ── Baseline ────────────────────────────────────────────
+  // Start iteration index (1 for fresh, or after resumed history)
+  let startIteration = 1;
 
-  consola.start("Running baseline evaluation...");
-  const { result: baselineResult, totalCost: baselineCost } =
-    await scorePrompt(currentPrompt, testCases, scorerOptions);
-  totalCost += baselineCost;
-  bestScore = baselineResult.average;
-  bestPrompt = currentPrompt;
+  if (resumeFrom) {
+    // ── Resume from previous run ─────────────────────────
+    consola.info(`Resuming from ${resumeFrom.history.length} previous iterations`);
 
-  const baselineIteration: IterationResult = {
-    iteration: 0,
-    timestamp: new Date().toISOString(),
-    mutation: null,
-    scores: baselineResult,
-    kept: true,
-    promptHash: hashPrompt(currentPrompt),
-    costUsd: baselineCost,
-  };
+    const rebuilt = rebuildState(resumeFrom.history);
+    bestScore = rebuilt.bestScore;
+    bestPrompt = rebuilt.bestPrompt || resumeFrom.prompt;
+    bestIteration = rebuilt.bestIteration;
+    consecutiveReverts = rebuilt.consecutiveReverts;
+    totalCost = rebuilt.totalCost;
+    currentPrompt = resumeFrom.prompt;
 
-  appendIteration(historyPath, baselineIteration);
-  history.push(baselineIteration);
-  onIteration?.(baselineIteration);
+    // Merge strategy stats
+    for (const [key, stats] of Object.entries(rebuilt.strategyStats)) {
+      const k = key as MutationStrategy;
+      strategyStats[k].attempts += stats.attempts;
+      strategyStats[k].kept += stats.kept;
+    }
 
-  consola.success(`Baseline score: ${baselineResult.average}/100`);
-  consola.info(`Baseline cost: $${baselineCost.toFixed(4)}`);
+    // Replay history into current run
+    for (const iter of resumeFrom.history) {
+      appendIteration(historyPath, iter);
+      history.push(iter);
+      onIteration?.(iter);
+    }
+
+    startIteration = resumeFrom.history.length; // Continue from where we left off
+    consola.success(`Resumed — best score: ${bestScore}/100, cost so far: $${totalCost.toFixed(4)}`);
+  } else {
+    // ── Baseline ────────────────────────────────────────────
+
+    consola.start("Running baseline evaluation...");
+    const { result: baselineResult, totalCost: baselineCost } =
+      await scorePrompt(currentPrompt, testCases, scorerOptions);
+    totalCost += baselineCost;
+    bestScore = baselineResult.average;
+    bestPrompt = currentPrompt;
+
+    const baselineIteration: IterationResult = {
+      iteration: 0,
+      timestamp: new Date().toISOString(),
+      mutation: null,
+      scores: baselineResult,
+      kept: true,
+      promptHash: hashPrompt(currentPrompt),
+      costUsd: baselineCost,
+    };
+
+    appendIteration(historyPath, baselineIteration);
+    history.push(baselineIteration);
+    onIteration?.(baselineIteration);
+
+    consola.success(`Baseline score: ${baselineResult.average}/100`);
+    consola.info(`Baseline cost: $${baselineCost.toFixed(4)}`);
+  }
 
   // ── Optimization Loop ───────────────────────────────────
 
-  for (let i = 1; i <= config.maxIterations; i++) {
+  for (let i = startIteration; i <= config.maxIterations; i++) {
     // Check cancel signal
     if (signal?.aborted) {
       consola.warn("Run cancelled by user.");
@@ -157,7 +197,7 @@ export async function run(options: RunOptions): Promise<RunReport> {
         currentPrompt,
         latestScores,
         history,
-        { optimizerModel: config.optimizerModel, strategyStats },
+        { optimizerModel: config.optimizerModel, strategyStats, strategyDoc },
       );
       mutation = mutResult.mutation;
       mutationCost = mutResult.cost;
@@ -252,6 +292,7 @@ export async function run(options: RunOptions): Promise<RunReport> {
     history,
     stopReason,
     maxCostUsd: config.maxCostUsd,
+    strategyStats,
   };
 
   writeFileSync(reportPath, JSON.stringify(report, null, 2), "utf-8");

@@ -164,7 +164,19 @@ function buildOptimizerMessage(
   // Failure report
   msg += `## Failure Report (lowest-scoring test cases)\n`;
   for (const score of failureReport.lowest) {
-    msg += `- **${score.testCaseId}** (score: ${score.value}): ${score.reasoning}\n`;
+    if (score.dimensions) {
+      // Rubric mode — show per-dimension breakdown with bottleneck highlighted
+      const dimEntries = Object.entries(score.dimensions);
+      const dimStr = dimEntries
+        .map(([name, val]) => {
+          const lowest = dimEntries.reduce((min, [, v]) => Math.min(min, v), 100);
+          return val === lowest ? `**${name}=${val}**` : `${name}=${val}`;
+        })
+        .join(", ");
+      msg += `- **${score.testCaseId}** (composite: ${score.value}): ${dimStr}\n  ${score.reasoning}\n`;
+    } else {
+      msg += `- **${score.testCaseId}** (score: ${score.value}): ${score.reasoning}\n`;
+    }
   }
   msg += `\nCurrent average score: ${failureReport.average}/100\n\n`;
 
@@ -202,6 +214,8 @@ export interface MutatorOptions {
   optimizerModel: ModelConfig;
   /** Per-strategy success tracking for smarter mutation selection */
   strategyStats?: StrategyStats;
+  /** Human strategy document (e.g. program.md) to guide mutation choices */
+  strategyDoc?: string;
 }
 
 export async function generateMutation(
@@ -212,9 +226,14 @@ export async function generateMutation(
 ): Promise<{ mutation: Mutation; cost: number }> {
   const message = buildOptimizerMessage(currentPrompt, failureReport, history, options.strategyStats);
 
+  // Prepend human strategy doc to system prompt if provided
+  const systemPrompt = options.strategyDoc
+    ? `${OPTIMIZER_SYSTEM}\n\n## Human Strategy\n\n${options.strategyDoc}`
+    : OPTIMIZER_SYSTEM;
+
   const response = await toolUse(
     options.optimizerModel,
-    OPTIMIZER_SYSTEM,
+    systemPrompt,
     message,
     MUTATION_TOOLS,
   );

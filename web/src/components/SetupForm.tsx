@@ -1,33 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ModelPicker } from "./ModelPicker";
 
-const STEPS = ["Prompt", "Test Cases", "Settings"] as const;
+const STEPS = ["Prompt", "Test Cases", "Strategy", "Settings"] as const;
 
 const DEFAULT_CRITERIA =
   "Score the output 0-100 on relevance, accuracy, clarity, and completeness.";
+
+const DEFAULT_STRATEGY_DOC = `# Optimization Strategy
+
+Write your high-level strategy here to guide the optimizer.
+
+## Goals
+- What does a perfect output look like?
+
+## Constraints
+- What should the optimizer NEVER do?
+
+## Hints
+- What domain knowledge might help?`;
 
 export function SetupForm() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [prompt, setPrompt] = useState("");
   const [testCases, setTestCases] = useState("");
+  const [strategyDoc, setStrategyDoc] = useState("");
+  const [strategyExpanded, setStrategyExpanded] = useState(false);
   const [criteria, setCriteria] = useState(DEFAULT_CRITERIA);
   const [modelId, setModelId] = useState("claude-sonnet-4-5");
   const [maxIterations, setMaxIterations] = useState(25);
   const [maxCostUsd, setMaxCostUsd] = useState(5);
+  const [dimensions, setDimensions] = useState<Array<{ name: string; weight: number; criteria: string }>>([]);
+  const [isImageGen, setIsImageGen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [suggesting, setSuggesting] = useState(false);
   const [error, setError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const canAdvance =
     step === 0
       ? prompt.trim().length > 0
       : step === 1
         ? testCases.trim().length > 0 && !suggesting
-        : true;
+        : true; // Strategy (step 2) and Settings (step 3) are always advanceable
 
   const handleSuggestCases = async () => {
     if (!prompt.trim()) return;
@@ -54,6 +72,30 @@ export function SetupForm() {
     }
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = reader.result as string;
+      setStrategyDoc(text);
+      setStrategyExpanded(true);
+    };
+    reader.readAsText(file);
+    // Reset so the same file can be re-uploaded
+    e.target.value = "";
+  };
+
+  // Weight validation
+  const totalWeight = dimensions.reduce((s, d) => s + d.weight, 0);
+  const weightWarning =
+    dimensions.length > 0 && Math.abs(totalWeight - 1) > 0.01;
+
+  // Adaptive test case placeholder
+  const testCasePlaceholder = isImageGen
+    ? '[\n  { "id": "sunset", "input": "A photorealistic sunset over the ocean with dramatic clouds" }\n]'
+    : '[\n  { "id": "example", "input": "..." }\n]';
+
   const handleSubmit = async () => {
     setError("");
     setSubmitting(true);
@@ -75,6 +117,8 @@ export function SetupForm() {
           modelId,
           maxIterations,
           maxCostUsd: isMaxModel ? 999 : maxCostUsd,
+          strategyDoc: strategyDoc.trim() || undefined,
+          dimensions: dimensions.length > 0 ? dimensions : undefined,
         }),
       });
 
@@ -195,7 +239,7 @@ export function SetupForm() {
               onChange={(e) => setTestCases(e.target.value)}
               rows={12}
               disabled={suggesting}
-              placeholder={'[\n  { "id": "example", "input": "..." }\n]'}
+              placeholder={testCasePlaceholder}
               className="w-full rounded-xl border border-border bg-surface px-4 py-3 font-mono text-sm leading-relaxed focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none resize-y disabled:opacity-50"
             />
             {suggesting && (
@@ -209,11 +253,82 @@ export function SetupForm() {
               </div>
             )}
           </div>
+          <p className="mt-2 text-xs text-text-muted">
+            {isImageGen
+              ? "Each test case describes the image to generate. The input is the image prompt."
+              : 'For vision test cases, add an "images" array: { "id": "...", "input": "...", "images": ["https://..."] }'}
+          </p>
         </div>
       )}
 
-      {/* Step 3: Settings */}
+      {/* Step 3: Strategy (optional) */}
       {step === 2 && (
+        <div>
+          <h2 className="font-heading text-2xl sm:text-3xl mb-2">
+            Strategy Document
+          </h2>
+          <p className="text-text-muted text-sm mb-4">
+            Optional. Guide the optimizer with high-level goals, constraints,
+            and domain hints. This shapes how mutations are generated.
+          </p>
+          <div className="mb-4 flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setStrategyExpanded(!strategyExpanded);
+                if (!strategyExpanded && !strategyDoc.trim()) {
+                  setStrategyDoc(DEFAULT_STRATEGY_DOC);
+                }
+              }}
+              className="rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text-muted hover:bg-surface-alt"
+            >
+              {strategyExpanded ? "Collapse" : "Add Strategy Document"}
+            </button>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text-muted hover:bg-surface-alt"
+            >
+              Upload .md / .txt
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".md,.txt"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+          </div>
+          {strategyExpanded && (
+            <>
+              <textarea
+                value={strategyDoc}
+                onChange={(e) => setStrategyDoc(e.target.value)}
+                rows={10}
+                placeholder="# Optimization Strategy..."
+                className="w-full rounded-xl border border-border bg-surface px-4 py-3 font-mono text-sm leading-relaxed focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none resize-y"
+              />
+              <div className="mt-3 border-l-2 border-accent/30 bg-surface-alt rounded-lg px-3 py-2.5 text-xs text-text-muted">
+                <p className="font-medium text-text mb-1.5">Recommended approach</p>
+                <ul className="space-y-1 list-disc list-inside">
+                  <li><strong>Goals</strong>: Describe what a high-scoring output looks like in concrete terms — &quot;responds in under 50 words&quot; beats &quot;be concise&quot;</li>
+                  <li><strong>Constraints</strong>: List hard rules the optimizer must never break (e.g. &quot;never use first person&quot;, &quot;always include a citation&quot;)</li>
+                  <li><strong>Hints</strong>: Add domain knowledge the model might not have — acronyms, audience context, tone references</li>
+                </ul>
+                <p className="mt-2">Strategy docs improve results most when your prompt has domain-specific requirements. For generic prompts, skipping is fine.</p>
+              </div>
+            </>
+          )}
+          {!strategyExpanded && (
+            <p className="text-xs text-text-muted italic">
+              Skip this step to let the optimizer work without constraints.
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Step 4: Settings */}
+      {step === 3 && (
         <div>
           <h2 className="font-heading text-2xl sm:text-3xl mb-6">
             Settings
@@ -223,7 +338,7 @@ export function SetupForm() {
               <label className="mb-1.5 block text-sm font-medium">
                 Model
               </label>
-              <ModelPicker value={modelId} onChange={setModelId} />
+              <ModelPicker value={modelId} onChange={setModelId} onModeChange={setIsImageGen} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -261,6 +376,9 @@ export function SetupForm() {
                 )}
               </div>
             </div>
+            <p className="text-xs text-text-muted mt-1.5">
+              15-25 iterations is usually enough for convergence. Complex or long prompts may benefit from 40+. Most Sonnet runs cost $1-3; Opus runs ~3x more.
+            </p>
 
             <div>
               <label className="mb-1.5 block text-sm font-medium">
@@ -272,6 +390,85 @@ export function SetupForm() {
                 rows={3}
                 className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm leading-relaxed focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none resize-y"
               />
+              <p className="text-xs text-text-muted mt-1.5">
+                Be specific. &quot;Score 0-100 on factual accuracy, citing sources&quot; outperforms &quot;score on quality&quot;. The judge model uses this text verbatim.
+              </p>
+            </div>
+
+            {/* Scoring Dimensions (rubric mode) */}
+            <div>
+              <div className="mb-2 flex items-center justify-between">
+                <label className="block text-sm font-medium">
+                  Scoring Dimensions
+                  <span className="ml-1 text-xs text-text-muted font-normal">(optional)</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setDimensions([...dimensions, { name: "", weight: 0.33, criteria: "" }])
+                  }
+                  className="rounded-lg border border-border bg-surface px-2 py-1 text-xs font-medium text-text-muted hover:bg-surface-alt"
+                >
+                  + Add Dimension
+                </button>
+              </div>
+              {dimensions.length === 0 && (
+                <p className="text-xs text-text-muted">
+                  Add dimensions for multi-criteria scoring (e.g. accuracy 0.5, tone 0.3, format 0.2). Helps the optimizer target weak areas. Without dimensions, scoring uses a single 0-100 score.
+                </p>
+              )}
+              {dimensions.map((dim, idx) => (
+                <div key={idx} className="mt-2 flex gap-2 items-start">
+                  <input
+                    type="text"
+                    value={dim.name}
+                    onChange={(e) => {
+                      const next = [...dimensions];
+                      next[idx] = { ...next[idx], name: e.target.value };
+                      setDimensions(next);
+                    }}
+                    placeholder="Name"
+                    className="w-24 rounded-lg border border-border bg-surface px-2 py-1.5 text-xs font-mono focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none"
+                  />
+                  <input
+                    type="number"
+                    value={dim.weight}
+                    onChange={(e) => {
+                      const next = [...dimensions];
+                      next[idx] = { ...next[idx], weight: Number(e.target.value) };
+                      setDimensions(next);
+                    }}
+                    step={0.05}
+                    min={0}
+                    max={1}
+                    placeholder="Weight"
+                    className="w-16 rounded-lg border border-border bg-surface px-2 py-1.5 text-xs font-mono focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none"
+                  />
+                  <input
+                    type="text"
+                    value={dim.criteria}
+                    onChange={(e) => {
+                      const next = [...dimensions];
+                      next[idx] = { ...next[idx], criteria: e.target.value };
+                      setDimensions(next);
+                    }}
+                    placeholder="Criteria for this dimension"
+                    className="flex-1 rounded-lg border border-border bg-surface px-2 py-1.5 text-xs focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setDimensions(dimensions.filter((_, i) => i !== idx))}
+                    className="rounded-lg px-1.5 py-1.5 text-xs text-text-muted hover:text-reverted"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              {weightWarning && (
+                <p className="mt-2 text-xs text-amber-600">
+                  Weights sum to {totalWeight.toFixed(2)} — should sum to 1.0
+                </p>
+              )}
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import { use, useState, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useRunStream } from "@/hooks/useRunStream";
 import { RunHeader } from "@/components/RunHeader";
 import { ChartPanel } from "@/components/ChartPanel";
@@ -14,6 +15,7 @@ export default function RunPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const router = useRouter();
   const {
     iterations,
     status,
@@ -24,9 +26,11 @@ export default function RunPage({
     originalPrompt,
     optimizedPrompt,
     error,
+    hasStrategy,
   } = useRunStream(id);
 
   const [showOriginalPrompt, setShowOriginalPrompt] = useState(false);
+  const [continuing, setContinuing] = useState(false);
 
   const currentIteration =
     iterations.length > 0 ? iterations[iterations.length - 1].iteration : 0;
@@ -51,6 +55,32 @@ export default function RunPage({
   }, [id]);
 
   const isDone = status === "completed" || status === "cancelled";
+  const canContinue = isDone || (report?.stopReason === "plateau");
+
+  const handleContinue = useCallback(async () => {
+    setContinuing(true);
+    try {
+      const res = await fetch("/api/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: optimizedPrompt || originalPrompt,
+          testCases: [], // Will be loaded from the previous run
+          scoringCriteria: "",
+          modelId: "",
+          maxIterations: maxIterations,
+          maxCostUsd: maxCostUsd,
+          resumeFromRunId: id,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        router.push(`/run/${data.runId}`);
+      }
+    } catch {
+      setContinuing(false);
+    }
+  }, [id, optimizedPrompt, originalPrompt, maxIterations, maxCostUsd, router]);
 
   return (
     <div className="space-y-6">
@@ -76,12 +106,23 @@ export default function RunPage({
             </p>
           )}
         </div>
-        <Link
-          href="/"
-          className="rounded-xl border border-border bg-surface px-3 py-1.5 text-sm text-text-muted hover:bg-surface-alt"
-        >
-          New Run
-        </Link>
+        <div className="flex gap-2">
+          {canContinue && (
+            <button
+              onClick={handleContinue}
+              disabled={continuing}
+              className="rounded-xl bg-accent px-3 py-1.5 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-40"
+            >
+              {continuing ? "Starting..." : "Continue Run"}
+            </button>
+          )}
+          <Link
+            href="/"
+            className="rounded-xl border border-border bg-surface px-3 py-1.5 text-sm text-text-muted hover:bg-surface-alt"
+          >
+            New Run
+          </Link>
+        </div>
       </div>
 
       {/* Status bar */}
@@ -113,6 +154,21 @@ export default function RunPage({
         </div>
       )}
 
+      {/* Strategy badge */}
+      {hasStrategy && (
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 border border-amber-200">
+            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+            </svg>
+            Strategy doc active
+          </span>
+        </div>
+      )}
+
       {/* Chart — hero element */}
       <ChartPanel runId={id} iterationCount={iterations.length} />
 
@@ -130,6 +186,62 @@ export default function RunPage({
             label="Total Cost"
             value={`$${report.totalCostUsd.toFixed(2)}`}
           />
+        </div>
+      )}
+
+      {/* Strategy stats (on completion) */}
+      {isDone && report?.strategyStats && Object.keys(report.strategyStats).length > 0 && (
+        <div>
+          <h2 className="font-heading text-xl sm:text-2xl mb-4">
+            Mutation Strategy Performance
+          </h2>
+          <div className="rounded-2xl border border-border bg-surface overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-surface-alt text-left text-xs font-medium uppercase tracking-wider text-text-muted">
+                  <th className="px-4 py-2.5">Strategy</th>
+                  <th className="px-4 py-2.5 text-right">Attempts</th>
+                  <th className="px-4 py-2.5 text-right">Kept</th>
+                  <th className="px-4 py-2.5 text-right">Success Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(report.strategyStats)
+                  .sort(([, a], [, b]) => {
+                    const rateA = a.attempts > 0 ? a.kept / a.attempts : 0;
+                    const rateB = b.attempts > 0 ? b.kept / b.attempts : 0;
+                    return rateB - rateA;
+                  })
+                  .map(([strategy, stats], idx) => {
+                    const rate = stats.attempts > 0 ? (stats.kept / stats.attempts) * 100 : 0;
+                    const isTop = idx === 0 && stats.kept > 0;
+                    return (
+                      <tr key={strategy} className="border-b border-border last:border-0">
+                        <td className="px-4 py-2.5 font-mono">
+                          {strategy}
+                          {isTop && (
+                            <span className="ml-2 text-xs text-kept font-medium">best</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-2.5 text-right font-mono text-text-muted">{stats.attempts}</td>
+                        <td className="px-4 py-2.5 text-right font-mono text-text-muted">{stats.kept}</td>
+                        <td className="px-4 py-2.5 text-right">
+                          <span className={`font-mono font-medium ${rate >= 50 ? "text-kept" : rate >= 25 ? "text-amber-600" : "text-text-muted"}`}>
+                            {rate.toFixed(0)}%
+                          </span>
+                          <div className="mt-1 h-1 w-full rounded-full bg-surface-alt">
+                            <div
+                              className={`h-1 rounded-full ${rate >= 50 ? "bg-kept" : rate >= 25 ? "bg-amber-400" : "bg-text-muted/30"}`}
+                              style={{ width: `${Math.max(rate, 2)}%` }}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

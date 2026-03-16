@@ -3,11 +3,47 @@ import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import consola from "consola";
 
+const DEFAULT_STRATEGY = `# Optimization Strategy
+
+This document guides the PromptLoop optimizer. Write your high-level strategy here.
+
+## Goals
+- What does a perfect output look like?
+- What quality dimensions matter most?
+
+## Constraints
+- What should the optimizer NEVER do?
+- What patterns should it avoid?
+
+## Hints
+- What domain knowledge might help the optimizer?
+- What common failure modes have you seen?
+`;
+
+const LINKEDIN_STRATEGY = `# LinkedIn Hook Optimization Strategy
+
+## Goals
+- Hooks should stop the scroll in under 2 seconds
+- Create genuine curiosity, not clickbait
+- Every word must earn its place
+
+## Constraints
+- Never use the "remove" strategy — hooks are already short, removing makes them too vague
+- Never add emojis or hashtags
+- Avoid questions as hooks (they underperform statements on LinkedIn)
+
+## Hints
+- Specific numbers and timeframes outperform vague claims
+- Contrast and tension create curiosity ("I left X to do Y")
+- First-person vulnerability outperforms third-person authority
+`;
+
 const TEMPLATES: Record<
   string,
-  { prompt: string; testCases: string; config: string }
+  { prompt: string; testCases: string; config: string; strategy: string }
 > = {
   "linkedin-hooks": {
+    strategy: LINKEDIN_STRATEGY,
     prompt: `You are an expert LinkedIn copywriter. Write a compelling hook (first 1-2 lines) for a LinkedIn post about the given topic.
 
 Rules:
@@ -113,6 +149,7 @@ const config: PromptLoopConfig = {
 export default config;`,
   },
   blank: {
+    strategy: DEFAULT_STRATEGY,
     prompt: `You are a helpful assistant. Complete the given task.
 
 Instructions:
@@ -218,6 +255,7 @@ export const initCommand = defineCommand({
       template.config,
       "utf-8",
     );
+    writeFileSync(join(fullPath, "program.md"), template.strategy, "utf-8");
     writeFileSync(
       join(fullPath, ".gitignore"),
       ".promptloop/\nnode_modules/\n",
@@ -229,6 +267,7 @@ export const initCommand = defineCommand({
     consola.info("  prompt.md          — Your prompt to optimize");
     consola.info("  test-cases.json    — Test cases for evaluation");
     consola.info("  promptloop.config.ts — Configuration");
+    consola.info("  program.md         — Strategy document for the optimizer");
     consola.info("");
     consola.info("Next steps:");
     consola.info(`  cd ${dir}`);

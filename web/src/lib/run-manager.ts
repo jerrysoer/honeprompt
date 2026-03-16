@@ -29,6 +29,7 @@ export interface ActiveRun {
   originalPrompt: string;
   optimizedPrompt?: string;
   error?: string;
+  hasStrategy: boolean;
   listeners: Set<(data: string) => void>;
   outputDir: string;
   abortController?: AbortController;
@@ -44,6 +45,7 @@ export interface RunState {
   originalPrompt: string;
   optimizedPrompt?: string;
   error?: string;
+  hasStrategy: boolean;
 }
 
 export interface RunSummary {
@@ -63,6 +65,11 @@ export interface StartRunParams {
   modelId: string;
   maxIterations: number;
   maxCostUsd: number;
+  strategyDoc?: string;
+  /** Resume from a previous run by ID */
+  resumeFromRunId?: string;
+  /** Scoring dimensions for rubric mode */
+  dimensions?: Array<{ name: string; weight: number; criteria: string }>;
 }
 
 // ── State (persisted on globalThis to survive HMR in dev) ───
@@ -88,10 +95,54 @@ export function startRun(params: StartRunParams): string {
 
   const promptPath = join(outputDir, "prompt.txt");
   const testCasesPath = join(outputDir, "test-cases.json");
-  writeFileSync(promptPath, params.prompt);
-  writeFileSync(testCasesPath, JSON.stringify(params.testCases, null, 2));
 
-  const modelConfig = resolveModel(params.modelId);
+  // If resuming, inherit test cases and config from previous run
+  let effectiveTestCases = params.testCases;
+  let effectiveModelId = params.modelId;
+  let effectiveCriteria = params.scoringCriteria;
+  let effectivePrompt = params.prompt;
+
+  if (params.resumeFromRunId) {
+    const prevRun = getRun(params.resumeFromRunId);
+    if (prevRun) {
+      // Load test cases from previous run directory
+      const prevTestCasesPath = join(prevRun.outputDir, "test-cases.json");
+      if (existsSync(prevTestCasesPath)) {
+        effectiveTestCases = JSON.parse(readFileSync(prevTestCasesPath, "utf-8"));
+      }
+      // Use optimized prompt from previous run
+      effectivePrompt = prevRun.optimizedPrompt ?? prevRun.originalPrompt;
+    }
+  }
+
+  // Load saved config from previous run if resuming
+  if (params.resumeFromRunId) {
+    const prevRun = getRun(params.resumeFromRunId);
+    if (prevRun) {
+      const prevConfigPath = join(prevRun.outputDir, "run-config.json");
+      if (existsSync(prevConfigPath)) {
+        const prevConfig = JSON.parse(readFileSync(prevConfigPath, "utf-8"));
+        effectiveModelId = prevConfig.modelId || effectiveModelId;
+        effectiveCriteria = prevConfig.scoringCriteria || effectiveCriteria;
+      }
+    }
+  }
+
+  writeFileSync(promptPath, effectivePrompt);
+  writeFileSync(testCasesPath, JSON.stringify(effectiveTestCases, null, 2));
+  // Persist strategy doc so it can be detected after restart
+  if (params.strategyDoc?.trim()) {
+    writeFileSync(join(outputDir, "strategy.md"), params.strategyDoc);
+  }
+  // Persist run config for future resume
+  writeFileSync(join(outputDir, "run-config.json"), JSON.stringify({
+    modelId: effectiveModelId,
+    scoringCriteria: effectiveCriteria,
+    maxIterations: params.maxIterations,
+    maxCostUsd: params.maxCostUsd,
+  }, null, 2));
+
+  const modelConfig = resolveModel(effectiveModelId);
 
   const config: PromptLoopConfig = {
     targetModel: modelConfig,
@@ -102,7 +153,8 @@ export function startRun(params: StartRunParams): string {
     parallelTestCases: 5,
     scoring: {
       mode: "llm-judge",
-      criteria: params.scoringCriteria,
+      criteria: effectiveCriteria || params.scoringCriteria,
+      dimensions: params.dimensions,
     },
     failureReportSize: 3,
   };
@@ -117,6 +169,7 @@ export function startRun(params: StartRunParams): string {
     maxCostUsd: params.maxCostUsd,
     startedAt: Date.now(),
     originalPrompt: params.prompt,
+    hasStrategy: !!params.strategyDoc?.trim(),
     listeners: new Set(),
     outputDir,
     abortController,
@@ -124,12 +177,26 @@ export function startRun(params: StartRunParams): string {
 
   getActiveRuns().set(id, activeRun);
 
+  // Build resume state if continuing from a previous run
+  let resumeFrom: { history: IterationResult[]; prompt: string } | undefined;
+  if (params.resumeFromRunId) {
+    const prevRun = getRun(params.resumeFromRunId);
+    if (prevRun && prevRun.history.length > 0) {
+      const prevPrompt = prevRun.optimizedPrompt ?? prevRun.originalPrompt;
+      resumeFrom = { history: prevRun.history, prompt: prevPrompt };
+      // Also use the previous optimized prompt as the starting prompt
+      writeFileSync(promptPath, prevPrompt);
+    }
+  }
+
   run({
     promptPath,
     testCasesPath,
     config,
     outputDir,
     signal: abortController.signal,
+    strategyDoc: params.strategyDoc,
+    resumeFrom,
     onIteration: (result) => {
       activeRun.history.push(result);
       const event = `data: ${JSON.stringify(result)}\n\n`;
@@ -197,6 +264,10 @@ export function getRun(id: string): ActiveRun | null {
 
     // Reconstruct as a completed ActiveRun
     const status = report.stopReason === "cancelled" ? "cancelled" as const : "completed" as const;
+    // Check if a strategy doc was saved for this run
+    const strategyDocPath = join(RUNS_DIR, id, "strategy.md");
+    const hadStrategy = existsSync(strategyDocPath);
+
     const reconstructed: ActiveRun = {
       id,
       status,
@@ -207,6 +278,7 @@ export function getRun(id: string): ActiveRun | null {
       report,
       originalPrompt: "", // lost after restart
       optimizedPrompt,
+      hasStrategy: hadStrategy,
       listeners: new Set(),
       outputDir: join(RUNS_DIR, id),
     };

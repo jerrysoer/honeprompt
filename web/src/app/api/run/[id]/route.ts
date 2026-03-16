@@ -31,6 +31,7 @@ export async function GET(
     originalPrompt: activeRun.originalPrompt,
     optimizedPrompt: activeRun.optimizedPrompt,
     error: activeRun.error,
+    hasStrategy: activeRun.hasStrategy,
   });
 }
 
@@ -51,6 +52,7 @@ function createSSEResponse(
             maxCostUsd: activeRun.maxCostUsd,
             startedAt: activeRun.startedAt,
             originalPrompt: activeRun.originalPrompt,
+            hasStrategy: activeRun.hasStrategy,
           })}\n\n`,
         ),
       );

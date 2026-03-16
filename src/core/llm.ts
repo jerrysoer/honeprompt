@@ -51,13 +51,40 @@ async function anthropicComplete(
   config: ModelConfig,
   systemPrompt: string,
   userMessage: string,
+  images?: string[],
 ): Promise<LLMResponse> {
   const client = getAnthropicClient(config);
+
+  // Build content blocks — text + optional images
+  const contentBlocks: Anthropic.ContentBlockParam[] = [];
+  if (images?.length) {
+    for (const img of images) {
+      if (img.startsWith("data:") || img.startsWith("/9j/") || img.startsWith("iVBOR")) {
+        // Base64 image
+        const base64 = img.startsWith("data:") ? img.split(",")[1] : img;
+        const mediaType = img.startsWith("data:")
+          ? (img.split(";")[0].split(":")[1] as "image/jpeg" | "image/png" | "image/gif" | "image/webp")
+          : "image/jpeg";
+        contentBlocks.push({
+          type: "image",
+          source: { type: "base64", media_type: mediaType, data: base64 },
+        });
+      } else {
+        // URL image
+        contentBlocks.push({
+          type: "image",
+          source: { type: "url", url: img },
+        });
+      }
+    }
+  }
+  contentBlocks.push({ type: "text", text: userMessage });
+
   const response = await client.messages.create({
     model: config.model,
     max_tokens: 4096,
     system: systemPrompt,
-    messages: [{ role: "user", content: userMessage }],
+    messages: [{ role: "user", content: contentBlocks }],
   });
 
   const content = response.content
@@ -119,14 +146,32 @@ async function openaiComplete(
   config: ModelConfig,
   systemPrompt: string,
   userMessage: string,
+  images?: string[],
 ): Promise<LLMResponse> {
   const client = getOpenAIClient(config);
+
+  // Build messages — with or without images
+  const messages: OpenAI.ChatCompletionMessageParam[] = [
+    { role: "system", content: systemPrompt },
+  ];
+
+  if (images?.length) {
+    const parts: OpenAI.ChatCompletionContentPart[] = [];
+    for (const img of images) {
+      const url = img.startsWith("data:") || img.startsWith("http")
+        ? img
+        : `data:image/jpeg;base64,${img}`;
+      parts.push({ type: "image_url", image_url: { url } });
+    }
+    parts.push({ type: "text", text: userMessage });
+    messages.push({ role: "user", content: parts });
+  } else {
+    messages.push({ role: "user", content: userMessage });
+  }
+
   const response = await client.chat.completions.create({
     model: config.model,
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userMessage },
-    ],
+    messages,
   });
 
   const content = response.choices[0]?.message?.content ?? "";
@@ -348,20 +393,59 @@ async function cliToolUse(
   return parseToolResponse(json);
 }
 
+// ── Image Generation Provider ───────────────────────────────
+
+const IMAGE_GEN_COSTS: Record<string, number> = {
+  "dall-e-3": 0.04, // per image (1024x1024)
+  "dall-e-2": 0.02,
+};
+
+async function imageGenComplete(
+  config: ModelConfig,
+  _systemPrompt: string,
+  userMessage: string,
+): Promise<LLMResponse> {
+  const client = getOpenAIClient(config);
+  const model = config.model || "dall-e-3";
+
+  const response = await client.images.generate({
+    model,
+    prompt: userMessage,
+    n: 1,
+    size: "1024x1024",
+    response_format: "url",
+  });
+
+  const imageUrl = response.data?.[0]?.url ?? "";
+  const costPerImage = IMAGE_GEN_COSTS[model] ?? 0.04;
+
+  return {
+    content: "",
+    imageUrl,
+    inputTokens: 0,
+    outputTokens: 0,
+    costUsd: costPerImage,
+  };
+}
+
 // ── Public API ──────────────────────────────────────────────
 
 export async function complete(
   config: ModelConfig,
   systemPrompt: string,
   userMessage: string,
+  images?: string[],
 ): Promise<LLMResponse> {
+  if (config.provider === "image-gen") {
+    return imageGenComplete(config, systemPrompt, userMessage);
+  }
   if (config.provider === "claude-cli") {
     return cliComplete(config, systemPrompt, userMessage);
   }
   if (config.provider === "anthropic") {
-    return anthropicComplete(config, systemPrompt, userMessage);
+    return anthropicComplete(config, systemPrompt, userMessage, images);
   }
-  return openaiComplete(config, systemPrompt, userMessage);
+  return openaiComplete(config, systemPrompt, userMessage, images);
 }
 
 export async function toolUse(

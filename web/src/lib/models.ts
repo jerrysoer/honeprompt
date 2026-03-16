@@ -1,7 +1,7 @@
 export interface ModelOption {
   id: string;
   label: string;
-  provider: "anthropic" | "openai" | "claude-cli";
+  provider: "anthropic" | "openai" | "claude-cli" | "image-gen";
   model: string;
 }
 
@@ -49,5 +49,18 @@ export const MODELS: ModelOption[] = [
     label: "GPT-4o",
     provider: "openai",
     model: "gpt-4o",
+  },
+  // Image generation models
+  {
+    id: "dall-e-3",
+    label: "DALL-E 3",
+    provider: "image-gen",
+    model: "dall-e-3",
+  },
+  {
+    id: "dall-e-2",
+    label: "DALL-E 2",
+    provider: "image-gen",
+    model: "dall-e-2",
   },
 ];

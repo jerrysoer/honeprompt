@@ -8,6 +8,18 @@ interface ChartOptions {
   title?: string;
 }
 
+// Dimension line colors (up to 8 dimensions)
+const DIMENSION_COLORS = [
+  "#f97316", // orange
+  "#a855f7", // purple
+  "#06b6d4", // cyan
+  "#eab308", // yellow
+  "#ec4899", // pink
+  "#10b981", // emerald
+  "#f43f5e", // rose
+  "#6366f1", // indigo
+];
+
 export function generateSVG(
   history: IterationResult[],
   options: ChartOptions = {},
@@ -79,6 +91,54 @@ export function generateSVG(
     (_, i) => (maxCost * i) / costTicks,
   );
 
+  // ── Dimension lines (rubric mode) ──────────────────────────
+  // Collect all dimension names from the first iteration that has them
+  const allDimNames: string[] = [];
+  for (const h of history) {
+    const firstScore = h.scores.scores[0];
+    if (firstScore?.dimensions) {
+      allDimNames.push(...Object.keys(firstScore.dimensions));
+      break;
+    }
+  }
+
+  let dimensionLines = "";
+  let dimensionLegendEntries = "";
+
+  if (allDimNames.length > 0) {
+    // For each dimension, compute average across test cases per iteration
+    for (let dIdx = 0; dIdx < allDimNames.length; dIdx++) {
+      const dimName = allDimNames[dIdx];
+      const color = DIMENSION_COLORS[dIdx % DIMENSION_COLORS.length];
+
+      const dimPoints = history.map((h, i) => {
+        const dimScores = h.scores.scores
+          .map((s) => s.dimensions?.[dimName])
+          .filter((v): v is number => v !== undefined);
+        const avg = dimScores.length > 0
+          ? dimScores.reduce((a, b) => a + b, 0) / dimScores.length
+          : 0;
+        const x = padding.left + (i / Math.max(history.length - 1, 1)) * chartW;
+        const y = padding.top + chartH - ((avg - minScore) / scoreRange) * chartH;
+        return { x, y };
+      });
+
+      const dimPath = dimPoints
+        .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
+        .join(" ");
+
+      dimensionLines += `\n  <path d="${dimPath}" fill="none" stroke="${color}" stroke-width="1.5" stroke-dasharray="4 2" opacity="0.7"/>`;
+
+      // Legend entry
+      const legendY = 76 + dIdx * 18;
+      dimensionLegendEntries += `\n    <line x1="8" y1="${legendY}" x2="20" y2="${legendY}" stroke="${color}" stroke-width="2" stroke-dasharray="4 2"/>`;
+      dimensionLegendEntries += `\n    <text x="24" y="${legendY + 4}" fill="#e6edf3" font-size="10" font-family="system-ui">${dimName}</text>`;
+    }
+  }
+
+  // Adjust legend height if dimensions present
+  const legendHeight = 72 + allDimNames.length * 18;
+
   // Mutation strategy labels for kept iterations
   const annotations = keptPoints
     .filter((_, i) => i < 5) // limit annotations to avoid clutter
@@ -137,6 +197,9 @@ export function generateSVG(
   <!-- Score line -->
   <path d="${linePath}" fill="none" stroke="#58a6ff" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" filter="url(#glow)"/>
 
+  <!-- Dimension lines (rubric mode) -->
+  ${dimensionLines}
+
   <!-- Reverted iterations (dim dots) -->
   ${revertedPoints.map((p) => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="#f85149" opacity="0.5"/>`).join("\n  ")}
 
@@ -164,7 +227,7 @@ export function generateSVG(
 
   <!-- Legend -->
   <g transform="translate(${padding.left + 10}, ${padding.top + 10})">
-    <rect width="180" height="72" rx="4" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+    <rect width="180" height="${legendHeight}" rx="4" fill="#161b22" stroke="#30363d" stroke-width="1"/>
     <circle cx="14" cy="16" r="4" fill="#f0883e"/>
     <text x="24" y="20" fill="#e6edf3" font-size="11" font-family="system-ui">Baseline: ${baselineScore}</text>
     <circle cx="14" cy="36" r="4" fill="#58a6ff"/>
@@ -173,6 +236,7 @@ export function generateSVG(
     <text x="24" y="60" fill="#e6edf3" font-size="11" font-family="system-ui">Kept  </text>
     <circle cx="90" cy="56" r="3" fill="#f85149" opacity="0.5"/>
     <text x="100" y="60" fill="#e6edf3" font-size="11" font-family="system-ui">Reverted</text>
+    ${dimensionLegendEntries}
   </g>
 </svg>`;
 }

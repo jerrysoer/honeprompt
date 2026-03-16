@@ -7,6 +7,19 @@ export interface TestCase {
   expected?: string;
   /** Optional metadata passed through to the scorer */
   metadata?: Record<string, unknown>;
+  /** Optional image URLs or base64 strings for vision test cases */
+  images?: string[];
+}
+
+// ── Scoring Dimensions ──────────────────────────────────────
+
+export interface ScoringDimension {
+  /** Dimension name, e.g. "accuracy", "tone", "format" */
+  name: string;
+  /** Weight for composite score (0-1) — all weights should sum to 1 */
+  weight: number;
+  /** Per-dimension judge criteria */
+  criteria: string;
 }
 
 // ── Scoring ─────────────────────────────────────────────────
@@ -15,6 +28,10 @@ export interface Score {
   value: number; // 0-100
   reasoning: string;
   testCaseId: string;
+  /** Per-dimension scores when rubric mode is active */
+  dimensions?: Record<string, number>;
+  /** URL of generated image (for image-gen test cases) */
+  imageUrl?: string;
 }
 
 export interface ScoreResult {
@@ -33,6 +50,8 @@ export interface ScoringConfig {
   evalPath?: string;
   /** Weight for LLM judge score in hybrid mode (0-1, default 0.5) */
   judgeWeight?: number;
+  /** Multi-dimensional rubric — if set, enables rubric scoring mode */
+  dimensions?: ScoringDimension[];
 }
 
 // ── Mutations ───────────────────────────────────────────────
@@ -84,11 +103,13 @@ export interface RunReport {
   stopReason?: StopReason;
   /** Budget ceiling for cost projection in UI */
   maxCostUsd?: number;
+  /** Per-strategy success rates from this run */
+  strategyStats?: Record<string, { attempts: number; kept: number }>;
 }
 
 // ── Config ──────────────────────────────────────────────────
 
-export type ModelProvider = "anthropic" | "openai" | "claude-cli";
+export type ModelProvider = "anthropic" | "openai" | "claude-cli" | "image-gen";
 
 export interface ModelConfig {
   provider: ModelProvider;
@@ -104,6 +125,8 @@ export interface PromptLoopConfig {
   optimizerModel: ModelConfig;
   /** Model that judges output quality */
   judgeModel: ModelConfig;
+  /** Optimization mode — auto-detected from model config if not set */
+  mode?: "text" | "vision" | "image-gen";
   /** Maximum optimization iterations */
   maxIterations: number;
   /** Stop if total cost exceeds this (USD) */
@@ -127,6 +150,8 @@ export interface LLMResponse {
   inputTokens: number;
   outputTokens: number;
   costUsd: number;
+  /** URL of generated image (for image-gen providers) */
+  imageUrl?: string;
 }
 
 export interface LLMToolCall {

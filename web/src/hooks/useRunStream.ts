@@ -13,6 +13,7 @@ export interface RunStreamState {
   originalPrompt: string;
   optimizedPrompt?: string;
   error?: string;
+  hasStrategy: boolean;
 }
 
 export function useRunStream(runId: string): RunStreamState {
@@ -23,6 +24,7 @@ export function useRunStream(runId: string): RunStreamState {
     maxCostUsd: 0,
     startedAt: 0,
     originalPrompt: "",
+    hasStrategy: false,
   });
 
   useEffect(() => {
@@ -35,6 +37,7 @@ export function useRunStream(runId: string): RunStreamState {
         maxCostUsd: number;
         startedAt: number;
         originalPrompt: string;
+        hasStrategy?: boolean;
       };
       setState((prev) => ({
         ...prev,
@@ -43,6 +46,7 @@ export function useRunStream(runId: string): RunStreamState {
         maxCostUsd: data.maxCostUsd ?? 0,
         startedAt: data.startedAt,
         originalPrompt: data.originalPrompt,
+        hasStrategy: data.hasStrategy ?? false,
       }));
     });
 
