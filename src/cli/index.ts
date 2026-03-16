@@ -9,7 +9,7 @@ import { estimateCommand } from "./estimate.js";
 const main = defineCommand({
   meta: {
     name: "promptloop",
-    version: "0.1.0",
+    version: "0.2.0",
     description: "Autonomous prompt optimizer",
   },
   subCommands: {

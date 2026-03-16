@@ -4,6 +4,7 @@
 
 [![npm version](https://img.shields.io/npm/v/promptloop)](https://www.npmjs.com/package/promptloop)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Optimized with PromptLoop](https://img.shields.io/badge/prompts-optimized%20with%20PromptLoop-C2410C)](https://github.com/jerrysoer/promptloop)
 
 > **Try the live demo** at [promptloop.vercel.app](https://promptloop.vercel.app)
 
@@ -23,6 +24,9 @@
 | Works with any model | Yes | Yes | Yes | OpenAI only |
 | CLI + Web UI | Yes | CLI only | CLI + UI | API only |
 | Mutation strategies | 6 strategies | Bootstrapping | N/A | Gradient-free |
+| Multi-dimensional rubrics | Yes | No | No | No |
+| Multimodal (vision + image-gen) | Yes | No | No | No |
+| Resume / continue runs | Yes | No | No | No |
 | Real-time progress | SSE streaming | No | No | No |
 | Self-hostable | Yes | Yes | Yes | No |
 
@@ -35,25 +39,25 @@ promptloop run
 
 ```
 Load prompt.md + test-cases.json
-         │
-    ┌────▼────┐
-    │ Baseline │  Execute prompt against all test cases, score with LLM judge
-    └────┬────┘
-         │
-    ┌────▼──────────────────────┐
-    │ Loop (N iterations)       │
-    │                           │
-    │  1. Failure report        │  Identify lowest-scoring test cases
-    │  2. Mutate                │  Optimizer agent picks a strategy
-    │  3. Re-score              │  Execute mutated prompt, judge outputs
-    │  4. Keep or revert        │  Score improved? Keep. Otherwise revert.
-    │  5. Log to history.jsonl  │
-    │                           │
-    └────┬──────────────────────┘
-         │
-    ┌────▼────┐
-    │ Output  │  Optimized prompt.md + progress.png + report.json
-    └─────────┘
+         |
+    +----v----+
+    | Baseline |  Execute prompt against all test cases, score with LLM judge
+    +----+----+
+         |
+    +----v--------------------------+
+    | Loop (N iterations)           |
+    |                               |
+    |  1. Failure report            |  Identify lowest-scoring test cases
+    |  2. Mutate                    |  Optimizer agent picks a strategy
+    |  3. Re-score                  |  Execute mutated prompt, judge outputs
+    |  4. Keep or revert            |  Score improved? Keep. Otherwise revert.
+    |  5. Log to history.jsonl      |
+    |                               |
+    +----+--------------------------+
+         |
+    +----v----+
+    | Output  |  Optimized prompt.md + progress.png + report.json
+    +---------+
 ```
 
 ## Quick Start
@@ -75,6 +79,7 @@ This creates:
 - `prompt.md` — the prompt to optimize
 - `test-cases.json` — test cases with inputs and expected outputs
 - `promptloop.config.ts` — model selection, budget, scoring criteria
+- `program.md` — strategy document that shapes optimizer behavior
 
 ### Run optimization
 
@@ -120,6 +125,8 @@ const config: PromptLoopConfig = {
   },
   failureReportSize: 3,
   targetScore: 90,
+  // Stop if N consecutive mutations are reverted (default: 5)
+  plateauThreshold: 5,
 };
 
 export default config;
@@ -127,12 +134,13 @@ export default config;
 
 ### Models
 
-Works with any model via two providers:
+Works with any model via three providers:
 
-| Provider | Models |
-|---|---|
-| `anthropic` | Claude Sonnet 4.5, Claude Opus 4.6, Claude Haiku 4.5 |
-| `openai` | GPT-4o, GPT-4.1, GPT-4.1-mini, GPT-4.1-nano |
+| Provider | Models | Notes |
+|---|---|---|
+| `anthropic` | Claude Sonnet 4.5, Claude Opus 4.6, Claude Haiku 4.5 | API key required |
+| `openai` | GPT-4o, GPT-4.1, GPT-4.1-mini, GPT-4.1-nano | API key required |
+| `claude-cli` | Any model via Claude Code CLI | Zero-cost if on Claude Max plan |
 
 Use different models for different roles — e.g., cheap model as target, expensive model as judge.
 
@@ -158,6 +166,23 @@ export default function score(output: string, testCase: TestCase): number {
 
 Then set `scoring.evalPath: "./eval.ts"` in your config.
 
+### Multi-Dimensional Rubrics
+
+Replace the single 0-100 score with weighted dimensions:
+
+```typescript
+scoring: {
+  mode: "llm-judge",
+  dimensions: [
+    { name: "accuracy", weight: 0.4, criteria: "Factual correctness" },
+    { name: "tone", weight: 0.3, criteria: "Professional yet approachable" },
+    { name: "format", weight: 0.3, criteria: "Clean markdown, scannable structure" },
+  ],
+},
+```
+
+Each dimension is scored independently by the judge, then combined into a weighted composite score. The optimizer sees per-dimension breakdowns in failure reports, so it can target specific weaknesses.
+
 ## Mutation Strategies
 
 The optimizer uses Claude tool use to apply structured mutations:
@@ -172,6 +197,54 @@ The optimizer uses Claude tool use to apply structured mutations:
 | `expand` | Instructions are under-specified |
 
 One mutation per iteration. The optimizer learns from history — if a strategy was reverted, it tries a different approach.
+
+### Strategy Documents
+
+Add a `program.md` file to guide the optimizer with domain knowledge, constraints, or preferred mutation patterns. The strategy document is prepended to the optimizer system prompt.
+
+```bash
+promptloop run --strategy program.md
+```
+
+If `program.md` exists in your project directory, it is auto-detected.
+
+## Multimodal
+
+### Vision test cases
+
+Include images in your test cases for vision-capable models:
+
+```json
+{
+  "id": "chart-analysis",
+  "input": "Describe what this chart shows",
+  "images": ["https://example.com/chart.png"]
+}
+```
+
+### Image generation optimization
+
+Set `mode: "image-gen"` to optimize prompts for image generation models (DALL-E). The judge uses vision to score generated images against your criteria.
+
+## Smart Stopping
+
+PromptLoop stops automatically when:
+
+- **Target score reached** — score hits your `targetScore` threshold
+- **Budget exhausted** — total cost exceeds `maxCostUsd`
+- **Plateau detected** — N consecutive mutations reverted (configurable via `plateauThreshold`)
+- **Cancelled** — manual stop via CLI (Ctrl+C) or web UI
+
+## Resume Runs
+
+Stopped or cancelled runs can be resumed. The JSONL history file is append-only and crash-safe.
+
+```bash
+# CLI: resumes from the last saved state
+promptloop run --resume
+```
+
+In the web UI, completed/cancelled/plateau runs show a "Continue Run" button.
 
 ## CLI Reference
 
@@ -190,6 +263,8 @@ promptloop estimate [options]    # Estimate cost for an optimization run
   -o, --output <path>      # Output directory (default: .promptloop)
   -n, --iterations <n>     # Override max iterations
   --budget <usd>           # Override max cost
+  --strategy <path>        # Strategy document (default: auto-detect program.md)
+  --resume                 # Resume a previous run
 ```
 
 ## Programmatic API
@@ -205,7 +280,8 @@ const report = await run({
   outputDir: "./.promptloop",
 });
 
-console.log(`Improved ${report.baselineScore} → ${report.finalScore}`);
+console.log(`Improved ${report.baselineScore} -> ${report.finalScore}`);
+console.log(`Stop reason: ${report.stopReason}`);
 ```
 
 ## Output Files
@@ -214,7 +290,15 @@ After a run, `.promptloop/` contains:
 
 - `history.jsonl` — every iteration as a JSON line (append-only, crash-safe)
 - `progress.png` — score chart with baseline, improvements, and reverts
-- `report.json` — full run summary
+- `report.json` — full run summary with strategy stats
+
+### Badge
+
+Add this badge to your project README to show your prompts were optimized with PromptLoop:
+
+```markdown
+[![Optimized with PromptLoop](https://img.shields.io/badge/prompts-optimized%20with%20PromptLoop-C2410C)](https://github.com/jerrysoer/promptloop)
+```
 
 ## Cost
 
@@ -222,11 +306,14 @@ Typical costs for a 25-iteration run with 10 test cases:
 
 | Configuration | Estimated Cost |
 |---|---|
-| Sonnet for all three roles | $1–3 |
-| Haiku target, Sonnet optimizer/judge | $0.50–1.50 |
-| Sonnet target, Opus optimizer, Sonnet judge | $3–8 |
+| Sonnet for all three roles | $1-3 |
+| Haiku target, Sonnet optimizer/judge | $0.50-1.50 |
+| Sonnet target, Opus optimizer, Sonnet judge | $3-8 |
+| Claude CLI (Max plan) for all roles | $0 |
 
 Set `maxCostUsd` in config to cap spending. The loop stops when the budget is reached.
+
+Use `promptloop estimate` to preview costs before starting a run.
 
 ## FAQ
 
@@ -239,8 +326,11 @@ PromptFoo tests prompts. PromptLoop optimizes them. They are complementary — u
 **Does it work with local models?**
 Yes — set `baseUrl` in your model config to point to any OpenAI-compatible API (Ollama, vLLM, etc.).
 
+**Can I use it without an API key?**
+Yes — use the `claude-cli` provider with a Claude Max subscription for zero-cost optimization runs.
+
 **Can I resume a failed run?**
-Yes — use the "Continue Run" button in the web UI. The CLI supports resume via the JSONL history file that survives crashes.
+Yes — use `promptloop run --resume` in the CLI or the "Continue Run" button in the web UI. State is reconstructed from the crash-safe JSONL history file.
 
 ## License
 
