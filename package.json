@@ -16,6 +16,7 @@
   },
   "files": [
     "dist",
+    "templates",
     "program.md",
     "honeprompt.config.ts",
     "README.md",
@@ -23,11 +24,12 @@
   ],
   "scripts": {
     "build": "tsup",
+    "build:registry": "npx tsx scripts/build-registry.ts",
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "tsc --noEmit",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build:registry && npm run build"
   },
   "keywords": [
     "prompt",
@@ -57,6 +59,7 @@
   },
   "devDependencies": {
     "tsup": "^8.4.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
   }

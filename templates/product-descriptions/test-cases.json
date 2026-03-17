@@ -1,0 +1,42 @@
+[
+  {
+    "id": "saas-project-management",
+    "input": "Product: TaskFlow Pro\nFeatures: AI-powered task prioritization, real-time team dashboards, integrations with Slack/GitHub/Jira, automated standup reports\nTarget Audience: Engineering managers at mid-size startups (50-200 employees)\nPrice: $12/user/month",
+    "expected": "A benefit-focused description that emphasizes saving engineering managers time on coordination overhead. Should mention AI prioritization and integrations as benefits (e.g., 'spend less time in status meetings'), not just features. Must include a CTA. 80-150 words."
+  },
+  {
+    "id": "physical-product-headphones",
+    "input": "Product: SoundShell ANC 400\nFeatures: 40-hour battery life, adaptive noise cancellation with 3 modes, spatial audio, memory foam ear cushions, foldable design, USB-C fast charge (10 min = 3 hours)\nTarget Audience: Remote workers and commuters aged 25-45\nPrice: $179",
+    "expected": "A sensory description that helps the reader imagine wearing them. Should paint a picture of focus and comfort. Must translate specs into feelings (e.g., '40-hour battery' becomes 'a full work week without reaching for the charger'). Includes CTA. 80-150 words."
+  },
+  {
+    "id": "mobile-app-fitness",
+    "input": "Product: StrideCoach\nFeatures: Personalized running plans, real-time form analysis via phone camera, injury prevention alerts, social challenges with friends, Apple Watch + Garmin sync\nTarget Audience: Recreational runners training for their first half-marathon\nPrice: Free with $9.99/month premium tier",
+    "expected": "Should speak to the anxiety and excitement of training for a first big race. Must position the app as a supportive coach rather than a data tracker. Benefits over features. Mentions the free tier in CTA context. 80-150 words."
+  },
+  {
+    "id": "subscription-service-coffee",
+    "input": "Product: Roast Republic\nFeatures: Monthly delivery of 2 single-origin coffees, roasted within 48 hours of shipping, flavor profile quiz for personalization, brewing guides included, skip or cancel anytime\nTarget Audience: Home coffee enthusiasts tired of grocery store beans\nPrice: $24/month",
+    "expected": "Must use sensory language about taste, aroma, freshness. Should contrast the experience with stale grocery store coffee. The 'roasted within 48 hours' feature should be framed as freshness the reader can taste. Low-commitment CTA given the skip/cancel flexibility. 80-150 words."
+  },
+  {
+    "id": "b2b-software-analytics",
+    "input": "Product: MetricLens\nFeatures: Unified analytics across Google Analytics, Mixpanel, and Amplitude, natural language querying ('show me churn by cohort last quarter'), automated weekly insight reports, SOC 2 Type II compliant, role-based dashboards\nTarget Audience: VP of Product and data teams at Series B+ companies\nPrice: Custom pricing, starting at $500/month",
+    "expected": "Should lead with the pain of context-switching between analytics tools or waiting on data team queries. The natural language feature should be framed as 'ask your data plain English questions.' Must feel enterprise-appropriate without being stiff. Includes CTA suited for B2B (e.g., request a demo). 80-150 words."
+  },
+  {
+    "id": "consumer-electronics-smart-lamp",
+    "input": "Product: Lumina Desk Pro\nFeatures: Circadian rhythm lighting (auto-adjusts color temperature throughout the day), 120-degree adjustable arm, wireless phone charging base, ambient light sensor, touch-free gesture controls\nTarget Audience: Knowledge workers with home offices\nPrice: $129",
+    "expected": "Should connect the lighting to productivity and well-being, not just specs. The circadian rhythm feature is the star -- frame it as 'light that works with your body, not against it.' Gesture controls should feel futuristic but practical. CTA included. 80-150 words."
+  },
+  {
+    "id": "fashion-item-backpack",
+    "input": "Product: UrbanCarry Apex\nFeatures: Recycled ocean plastic shell, 28L capacity, hidden anti-theft pocket, padded 16-inch laptop sleeve, magnetic water bottle pocket, luggage pass-through strap\nTarget Audience: Environmentally-conscious urban commuters aged 22-35\nPrice: $89",
+    "expected": "Must balance sustainability messaging with practical daily-use benefits. The ocean plastic material should feel aspirational, not guilt-driven. Should help the reader picture their daily commute with this bag. Tactile language about materials. CTA included. 80-150 words."
+  },
+  {
+    "id": "food-beverage-protein-bar",
+    "input": "Product: NutriCrunch Bars\nFeatures: 20g plant protein, 4g sugar, no artificial sweeteners (sweetened with monk fruit), 8 flavor varieties, gluten-free, individually wrapped\nTarget Audience: Health-conscious gym-goers who dislike the chalky taste of typical protein bars\nPrice: $36 for a 12-pack",
+    "expected": "Must directly address the taste problem with competitor products. Sensory language about texture and flavor is critical. The '4g sugar' and 'monk fruit' should be framed as 'tastes like a treat, fuels like a meal.' CTA with flavor variety angle. 80-150 words."
+  }
+]

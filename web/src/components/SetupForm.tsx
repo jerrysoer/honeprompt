@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ModelPicker } from "./ModelPicker";
+import { track } from "@/lib/analytics/track";
 
 const STEPS = ["Prompt", "Test Cases", "Strategy", "Settings"] as const;
 
@@ -24,6 +25,7 @@ Write your high-level strategy here to guide the optimizer.
 
 export function SetupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
   const [prompt, setPrompt] = useState("");
   const [testCases, setTestCases] = useState("");
@@ -40,7 +42,35 @@ export function SetupForm() {
   const [submitting, setSubmitting] = useState(false);
   const [suggesting, setSuggesting] = useState(false);
   const [error, setError] = useState("");
+  const [loadingTemplate, setLoadingTemplate] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Pre-fill from ?template= query param
+  useEffect(() => {
+    const templateId = searchParams.get("template");
+    if (!templateId) return;
+
+    setLoadingTemplate(true);
+    fetch(`/api/templates/${encodeURIComponent(templateId)}`)
+      .then((r) => {
+        if (!r.ok) throw new Error("Template not found");
+        return r.json();
+      })
+      .then((data) => {
+        if (data.prompt) setPrompt(data.prompt);
+        if (data.testCases) setTestCases(data.testCases);
+        if (data.strategyDoc) {
+          setStrategyDoc(data.strategyDoc);
+          setStrategyExpanded(true);
+        }
+        if (data.scoringCriteria) setCriteria(data.scoringCriteria);
+        track("template_started", { templateId });
+      })
+      .catch(() => {
+        // Silently ignore — user can still fill manually
+      })
+      .finally(() => setLoadingTemplate(false));
+  }, [searchParams]);
 
   const isMaxModel = modelId.startsWith("max-");
 
@@ -133,6 +163,11 @@ export function SetupForm() {
         throw new Error(data.error || "Failed to start run");
       }
 
+      track("run_started", {
+        modelId,
+        testCaseCount: parsed.length,
+        templateId: searchParams.get("template") ?? undefined,
+      });
       router.push(`/run/${data.runId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -156,6 +191,15 @@ export function SetupForm() {
   };
 
   const back = () => setStep(Math.max(0, step - 1));
+
+  if (loadingTemplate) {
+    return (
+      <div className="mx-auto max-w-xl py-12 text-center">
+        <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+        <p className="text-sm text-text-muted">Loading template...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-xl">

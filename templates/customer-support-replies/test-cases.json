@@ -1,0 +1,42 @@
+[
+  {
+    "id": "billing-dispute",
+    "input": "Customer Name: Rachel\nCompany: StreamKit (video editing SaaS, $29/month)\nCustomer Message: I was charged $29 on March 3rd even though I cancelled my subscription on February 25th. I have the cancellation confirmation email. I want a refund immediately. This is unacceptable.\nInternal Context: The system shows her cancellation was processed on Feb 25th but the billing cycle renews on the 1st of each month. The charge on March 3rd was a processing delay, not a new charge. Refund is approved and will take 5-7 business days.",
+    "expected": "Acknowledges the frustration without being defensive. Explains the processing delay simply. Confirms the refund with a specific timeline (5-7 business days). Does not blame the customer or say 'per our policy.' Validates that she did cancel correctly. 100-200 words."
+  },
+  {
+    "id": "feature-request",
+    "input": "Customer Name: David\nCompany: TaskNest (project management tool)\nCustomer Message: I love TaskNest but I really need a Gantt chart view. My team is growing and we need to visualize project timelines. Without this, I might have to switch to a competitor that has it. Is this on your roadmap?\nInternal Context: Gantt charts are planned for Q3 2026. The team is actively working on it. There is a waitlist for early access.",
+    "expected": "Validates the need for Gantt charts without dismissing it. Shares that it is on the roadmap with an approximate timeline (Q3 2026). Offers the early access waitlist as a concrete next step. Expresses genuine interest in keeping David as a customer. Does not over-promise or give an exact date. 100-200 words."
+  },
+  {
+    "id": "bug-report",
+    "input": "Customer Name: Aisha\nCompany: PixelSnap (design collaboration tool)\nCustomer Message: Every time I try to export a file as PDF, the app freezes for about 30 seconds and then gives me a blank PDF. This has been happening since the update last Tuesday. I have tried clearing my cache and reinstalling. I need this fixed ASAP -- I have a client presentation tomorrow.\nInternal Context: This is a known bug introduced in v4.2.1 affecting PDF exports with embedded fonts. A hotfix is being tested and should ship within 24 hours. Workaround: export as PNG and convert to PDF using an external tool.",
+    "expected": "Acknowledges urgency of the client presentation. Confirms this is a known bug (validates she is not doing anything wrong). Provides the workaround immediately for tomorrow's presentation. Shares the hotfix timeline (within 24 hours). Does not ask her to 'try clearing your cache' since she already did. 100-200 words."
+  },
+  {
+    "id": "account-access",
+    "input": "Customer Name: Marcus\nCompany: VaultSync (password manager)\nCustomer Message: I cannot log into my account. I have tried resetting my password 3 times and I never receive the reset email. I checked spam. I need access to my passwords urgently -- I am locked out of multiple services.\nInternal Context: Marcus's account email was changed to a typo address (marcusjohn@gmail.com instead of marcusjohnson@gmail.com) during a profile update 2 weeks ago. Password resets are going to the wrong address. Support can manually correct the email after identity verification.",
+    "expected": "Acknowledges the urgency of being locked out of multiple services. Explains the root cause (email typo) clearly without making him feel stupid. Outlines the identity verification process as the immediate next step. Provides specific instructions for what he needs to send. Reassures his data is safe. 100-200 words."
+  },
+  {
+    "id": "cancellation-request",
+    "input": "Customer Name: Sophie\nCompany: FitTrack Pro (fitness app, $14.99/month)\nCustomer Message: Please cancel my subscription. The app is fine but I just cannot afford it right now with everything going on.\nInternal Context: Sophie has been a subscriber for 14 months. Company policy allows offering a 3-month pause or a reduced rate of $7.99/month. The cancellation can be processed immediately if she declines.",
+    "expected": "Respects her decision without guilt-tripping. Acknowledges the financial concern with genuine empathy (not 'sorry to see you go'). Offers the pause or reduced rate as options without being pushy. Makes clear that cancellation is easy if she prefers that. Does not make her jump through hoops. 100-200 words."
+  },
+  {
+    "id": "delayed-shipment",
+    "input": "Customer Name: Tom\nCompany: GearDrop (outdoor equipment e-commerce)\nCustomer Message: I ordered a tent (order #GD-44821) on March 1st with 5-day shipping. It is now March 12th and I still have not received it. Tracking has not updated since March 5th when it said 'In Transit.' I am going camping this weekend and I need this tent.\nInternal Context: The package appears stuck at a regional carrier hub. GearDrop cannot expedite the existing shipment. They can ship a replacement via overnight delivery (arrives Thursday) at no extra cost, or issue a full refund. The original will be intercepted if possible.",
+    "expected": "Acknowledges the camping trip urgency. Does not make excuses about the carrier. Presents the two options clearly (overnight replacement or full refund). Recommends the overnight option given the weekend trip. Provides a specific arrival day (Thursday). Addresses what happens with the original shipment. 100-200 words."
+  },
+  {
+    "id": "quality-complaint",
+    "input": "Customer Name: Elena\nCompany: BrightBean Coffee (online coffee retailer)\nCustomer Message: I just received my order of Ethiopian Yirgacheffe beans and they taste stale and flat. I have been ordering from you for a year and the quality has always been great, but this batch is clearly old. Really disappointed.\nInternal Context: There was a warehouse issue where a batch of Ethiopian beans was stored incorrectly near a heat source for several days before shipping. The company has already identified and pulled the affected batch. A replacement from the new batch can be sent immediately at no charge.",
+    "expected": "Validates Elena as a loyal customer whose quality expectations are justified. Owns the mistake honestly (storage issue) without excessive detail. Ships a replacement immediately without requiring a return. Does not ask her to 'give it another try' or question her palate. Acknowledges the year of loyalty. 100-200 words."
+  },
+  {
+    "id": "integration-help",
+    "input": "Customer Name: Kevin\nCompany: FlowAPI (API integration platform)\nCustomer Message: I have been trying to connect my Shopify store to FlowAPI for 3 hours and I keep getting a 401 Unauthorized error. I have regenerated my API key twice. Here is my config: endpoint: https://api.flowapi.io/v2/shopify, auth: Bearer sk_live_xxxx. I am on the Pro plan.\nInternal Context: The v2 Shopify endpoint requires the API key to be passed as x-api-key header, not as a Bearer token. This is documented but many users miss it. The correct header format is: x-api-key: sk_live_xxxx (no 'Bearer' prefix).",
+    "expected": "Does not make Kevin feel dumb for missing the documentation. Identifies the exact issue (header format) immediately. Provides the corrected config clearly so he can copy-paste it. Acknowledges this is a common point of confusion (normalizes the mistake). Does not send him to read the docs -- gives him the answer directly. 100-200 words."
+  }
+]

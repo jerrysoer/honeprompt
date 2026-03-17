@@ -1,0 +1,229 @@
+[
+  {
+    "id": "claude-md-optimizer",
+    "name": "CLAUDE.md Optimizer",
+    "description": "Generate concise, actionable CLAUDE.md files that help AI coding assistants work effectively in any codebase.",
+    "category": "developers",
+    "author": "HonePrompt Team",
+    "testCaseCount": 10,
+    "tags": [
+      "claude",
+      "claude-code",
+      "documentation",
+      "developer-tools"
+    ],
+    "estimatedCost": "$2-5 (25 iterations)",
+    "source": "official",
+    "sampleResults": {
+      "baseline": "TBD",
+      "final": "TBD",
+      "improvement": "TBD",
+      "iterations": "TBD"
+    }
+  },
+  {
+    "id": "code-review-comments",
+    "name": "Code Review Comments",
+    "description": "Write constructive, actionable code review comments that improve code and mentor authors.",
+    "category": "developers",
+    "author": "HonePrompt Team",
+    "testCaseCount": 8,
+    "tags": [
+      "code-review",
+      "development",
+      "pull-requests",
+      "engineering",
+      "quality"
+    ],
+    "estimatedCost": "$2-4 (25 iterations)",
+    "source": "official",
+    "sampleResults": {
+      "baseline": "TBD",
+      "final": "TBD",
+      "improvement": "TBD",
+      "iterations": "TBD"
+    }
+  },
+  {
+    "id": "cold-outreach-email",
+    "name": "Cold Outreach Email",
+    "description": "Write personalized, under-100-word cold emails that earn replies.",
+    "category": "saas",
+    "author": "HonePrompt Team",
+    "testCaseCount": 6,
+    "tags": [
+      "sales",
+      "outreach",
+      "email",
+      "cold-email",
+      "personalization"
+    ],
+    "estimatedCost": "$1-3 (25 iterations)",
+    "source": "official",
+    "sampleResults": {
+      "baseline": "TBD",
+      "final": "TBD",
+      "improvement": "TBD",
+      "iterations": "TBD"
+    }
+  },
+  {
+    "id": "commit-messages",
+    "name": "Commit Messages",
+    "description": "Generate clean conventional commit messages from diffs and change descriptions.",
+    "category": "developers",
+    "author": "HonePrompt Team",
+    "testCaseCount": 7,
+    "tags": [
+      "git",
+      "commits",
+      "conventional-commits",
+      "development",
+      "workflow"
+    ],
+    "estimatedCost": "$1-3 (25 iterations)",
+    "source": "official",
+    "sampleResults": {
+      "baseline": "TBD",
+      "final": "TBD",
+      "improvement": "TBD",
+      "iterations": "TBD"
+    }
+  },
+  {
+    "id": "customer-support-replies",
+    "name": "Customer Support Replies",
+    "description": "Write empathetic, resolution-focused customer support email replies.",
+    "category": "saas",
+    "author": "HonePrompt Team",
+    "testCaseCount": 8,
+    "tags": [
+      "support",
+      "customer-success",
+      "email",
+      "empathy",
+      "saas"
+    ],
+    "estimatedCost": "$1-3 (25 iterations)",
+    "source": "official",
+    "sampleResults": {
+      "baseline": "TBD",
+      "final": "TBD",
+      "improvement": "TBD",
+      "iterations": "TBD"
+    }
+  },
+  {
+    "id": "linkedin-hooks",
+    "name": "LinkedIn Hooks",
+    "description": "Write compelling LinkedIn post hooks that stop the scroll and drive engagement.",
+    "category": "creators",
+    "author": "HonePrompt Team",
+    "testCaseCount": 10,
+    "tags": [
+      "linkedin",
+      "social-media",
+      "hooks",
+      "copywriting"
+    ],
+    "estimatedCost": "$1-3 (25 iterations)",
+    "source": "official",
+    "sampleResults": {
+      "baseline": "TBD",
+      "final": "TBD",
+      "improvement": "TBD",
+      "iterations": "TBD"
+    }
+  },
+  {
+    "id": "product-descriptions",
+    "name": "Product Descriptions",
+    "description": "Write benefit-driven product descriptions for e-commerce and SaaS landing pages.",
+    "category": "marketers",
+    "author": "HonePrompt Team",
+    "testCaseCount": 8,
+    "tags": [
+      "copywriting",
+      "e-commerce",
+      "conversion",
+      "product-marketing"
+    ],
+    "estimatedCost": "$1-3 (25 iterations)",
+    "source": "official",
+    "sampleResults": {
+      "baseline": "TBD",
+      "final": "TBD",
+      "improvement": "TBD",
+      "iterations": "TBD"
+    }
+  },
+  {
+    "id": "seo-meta-descriptions",
+    "name": "SEO Meta Descriptions",
+    "description": "Write search-optimized meta descriptions under 160 characters with keyword integration and click appeal.",
+    "category": "marketers",
+    "author": "HonePrompt Team",
+    "testCaseCount": 8,
+    "tags": [
+      "seo",
+      "meta-description",
+      "search",
+      "content-marketing",
+      "serp"
+    ],
+    "estimatedCost": "$1-3 (25 iterations)",
+    "source": "official",
+    "sampleResults": {
+      "baseline": "TBD",
+      "final": "TBD",
+      "improvement": "TBD",
+      "iterations": "TBD"
+    }
+  },
+  {
+    "id": "tiktok-hooks",
+    "name": "TikTok Hooks",
+    "description": "Write scroll-stopping TikTok video hooks that feel spoken, not scripted.",
+    "category": "creators",
+    "author": "HonePrompt Team",
+    "testCaseCount": 7,
+    "tags": [
+      "tiktok",
+      "social-media",
+      "hooks",
+      "short-form-video",
+      "creators"
+    ],
+    "estimatedCost": "$1-3 (25 iterations)",
+    "source": "official",
+    "sampleResults": {
+      "baseline": "TBD",
+      "final": "TBD",
+      "improvement": "TBD",
+      "iterations": "TBD"
+    }
+  },
+  {
+    "id": "youtube-titles",
+    "name": "YouTube Titles",
+    "description": "Generate click-worthy YouTube video titles that balance curiosity with honesty.",
+    "category": "creators",
+    "author": "HonePrompt Team",
+    "testCaseCount": 7,
+    "tags": [
+      "youtube",
+      "titles",
+      "seo",
+      "creators",
+      "video"
+    ],
+    "estimatedCost": "$1-3 (25 iterations)",
+    "source": "official",
+    "sampleResults": {
+      "baseline": "TBD",
+      "final": "TBD",
+      "improvement": "TBD",
+      "iterations": "TBD"
+    }
+  }
+]

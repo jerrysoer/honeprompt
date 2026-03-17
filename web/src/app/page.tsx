@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { LandingHero } from "@/components/LandingHero";
 import { HowItWorks } from "@/components/HowItWorks";
 import { SetupForm } from "@/components/SetupForm";
@@ -9,7 +10,9 @@ export default function HomePage() {
       <HowItWorks />
       <div className="border-b border-border my-12" />
       <div id="setup">
-        <SetupForm />
+        <Suspense>
+          <SetupForm />
+        </Suspense>
       </div>
     </div>
   );

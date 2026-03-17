@@ -246,10 +246,39 @@ honeprompt run --resume
 
 In the web UI, completed/cancelled/plateau runs show a "Continue Run" button.
 
+## Templates
+
+Start with a ready-made template instead of building from scratch:
+
+```bash
+honeprompt init --list           # Browse all templates
+honeprompt init linkedin-hooks   # Scaffold from a template
+```
+
+| Template | Category | Description |
+|----------|----------|-------------|
+| `linkedin-hooks` | Creators | Scroll-stopping LinkedIn post hooks |
+| `tiktok-hooks` | Creators | Spoken-word TikTok video hooks |
+| `youtube-titles` | Creators | Click-worthy YouTube titles under 60 chars |
+| `claude-md-optimizer` | Developers | Actionable CLAUDE.md files for AI assistants |
+| `code-review-comments` | Developers | Constructive, specific code review comments |
+| `commit-messages` | Developers | Conventional commit messages from diffs |
+| `product-descriptions` | Marketers | Benefit-driven product copy |
+| `seo-meta-descriptions` | Marketers | SEO meta descriptions under 160 chars |
+| `cold-outreach-email` | SaaS | Personalized cold emails under 100 words |
+| `customer-support-replies` | SaaS | Empathetic support replies with clear resolutions |
+
+Browse templates in the web UI at [honeprompt.vercel.app/templates](https://honeprompt.vercel.app/templates).
+
+### Community Templates
+
+Want to contribute a template? See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Copy `templates/_template/` to get started.
+
 ## CLI Reference
 
 ```bash
-honeprompt init [template]       # Scaffold a project (templates: linkedin-hooks, blank)
+honeprompt init [template]       # Scaffold a project
+honeprompt init --list           # List all available templates
 honeprompt run [options]         # Run optimization loop
 honeprompt eval [options]        # Score current prompt (no optimization)
 honeprompt generate-tests [opt]  # Generate test cases from a prompt using AI

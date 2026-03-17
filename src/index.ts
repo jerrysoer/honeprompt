@@ -26,3 +26,4 @@ export { run, type RunOptions, type StrategyStats } from "./core/runner.js";
 export { appendIteration, readHistory, hashPrompt, rebuildState, type RebuiltState } from "./core/history.js";
 export { generateSVG, generatePNG } from "./core/chart.js";
 export { complete, toolUse, ANTHROPIC_COSTS, OPENAI_COSTS, estimateCost } from "./core/llm.js";
+export { parseReadmeContent, countTestCasesFromJson, isValidTemplateId, type ReadmeMeta } from "./core/registry.js";

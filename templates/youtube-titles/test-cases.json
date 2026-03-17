@@ -1,0 +1,9 @@
+[
+  {"id": "tutorial-python", "input": "A beginner Python tutorial covering variables, loops, functions, and building a simple calculator app in 45 minutes", "expected": "A clear, searchable title under 60 chars that signals beginner-friendly content and hints at the project outcome"},
+  {"id": "vlog-japan", "input": "A travel vlog about spending 2 weeks in Tokyo, visiting hidden local spots tourists never find, total budget was $1,800", "expected": "A title under 60 chars that highlights the unique angle (hidden spots or budget) and makes the viewer want to see the footage"},
+  {"id": "review-headphones", "input": "An honest review of the Sony WH-1000XM5 noise-canceling headphones after using them daily for 6 months", "expected": "A title under 60 chars that emphasizes the long-term real-world usage angle, differentiating from day-one reviews"},
+  {"id": "commentary-social", "input": "A video essay about how social media algorithms are making us more politically polarized, with data from recent studies", "expected": "A thought-provoking title under 60 chars that creates curiosity about the data without being sensational"},
+  {"id": "educational-space", "input": "An explanation of why we cannot travel faster than light, covering special relativity, time dilation, and the energy requirements", "expected": "A title under 60 chars that makes a physics concept feel accessible and intriguing to a general audience"},
+  {"id": "cooking-recipe", "input": "A recipe video for making authentic Neapolitan pizza at home without a pizza oven, using a cast iron skillet technique", "expected": "A title under 60 chars that highlights the no-oven workaround and the authentic result"},
+  {"id": "fitness-routine", "input": "A 30-day push-up challenge where I did 100 push-ups every day and documented the visible changes to my chest and arms", "expected": "A title under 60 chars that emphasizes the timeframe, the commitment, and the transformation results"}
+]

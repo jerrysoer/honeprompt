@@ -1,0 +1,5 @@
+[
+  {"id": "test-1", "input": "Your first test input here", "expected": "What you expect the output to look like"},
+  {"id": "test-2", "input": "Your second test input here", "expected": "What you expect the output to look like"},
+  {"id": "test-3", "input": "Your third test input here"}
+]

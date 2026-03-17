@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useCallback, useRef } from "react";
+import { use, useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRunStream } from "@/hooks/useRunStream";
@@ -9,6 +9,7 @@ import { ChartPanel } from "@/components/ChartPanel";
 import { IterationLog } from "@/components/IterationLog";
 import { PromptDiff } from "@/components/PromptDiff";
 import { ShareButton } from "@/components/ShareButton";
+import { track } from "@/lib/analytics/track";
 
 export default function RunClient({
   params,
@@ -57,6 +58,22 @@ export default function RunClient({
 
   const isDone = status === "completed" || status === "cancelled";
   const canContinue = isDone || (report?.stopReason === "plateau");
+
+  // Track run completion
+  const trackedRef = useRef(false);
+  useEffect(() => {
+    if (isDone && report && !trackedRef.current) {
+      trackedRef.current = true;
+      track("run_completed", {
+        runId: id,
+        baseline: report.baselineScore,
+        final: report.finalScore,
+        improvement: report.improvement,
+        iterations: report.iterations,
+        stopReason: report.stopReason,
+      });
+    }
+  }, [isDone, report, id]);
 
   const handleContinue = useCallback(async () => {
     setContinuing(true);
@@ -113,7 +130,7 @@ export default function RunClient({
               <ShareButton runId={id} report={report} />
               <CopyLinkButton />
               <button
-                onClick={() => window.open(`/api/run/${id}/export`)}
+                onClick={() => { track("export_clicked", { runId: id }); window.open(`/api/run/${id}/export`); }}
                 className="rounded-xl border border-border bg-surface px-3 py-1.5 text-sm text-text-muted hover:bg-surface-alt"
               >
                 Export

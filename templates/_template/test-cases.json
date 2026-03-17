@@ -1,0 +1,27 @@
+[
+  {
+    "id": "[REPLACE-id-1]",
+    "input": "[REPLACE] A representative input for your prompt",
+    "expected": "[REPLACE] Description of what a good output looks like"
+  },
+  {
+    "id": "[REPLACE-id-2]",
+    "input": "[REPLACE] A different input that tests another aspect",
+    "expected": "[REPLACE] Description of expected output"
+  },
+  {
+    "id": "[REPLACE-id-3]",
+    "input": "[REPLACE] An edge case or challenging input",
+    "expected": "[REPLACE] Description of expected output"
+  },
+  {
+    "id": "[REPLACE-id-4]",
+    "input": "[REPLACE] Another diverse test input",
+    "expected": "[REPLACE] Description of expected output"
+  },
+  {
+    "id": "[REPLACE-id-5]",
+    "input": "[REPLACE] A fifth test case for coverage",
+    "expected": "[REPLACE] Description of expected output"
+  }
+]

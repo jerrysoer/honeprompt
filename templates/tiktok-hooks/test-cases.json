@@ -1,0 +1,9 @@
+[
+  {"id": "fitness-protein", "input": "Why most people are eating protein wrong and wasting money on supplements", "expected": "A punchy, spoken-sounding hook that creates urgency about a common protein mistake — feels like someone talking to camera, not reading a script"},
+  {"id": "cooking-hack", "input": "A one-ingredient trick that makes boxed mac and cheese taste restaurant-quality", "expected": "A warm, teasing hook that makes the viewer curious about the secret ingredient — casual kitchen energy, not a food blog headline"},
+  {"id": "finance-savings", "input": "The savings account trick that most banks do not want you to know about", "expected": "An urgent, direct hook that feels like a friend sharing insider knowledge — avoids sounding like a scammy ad"},
+  {"id": "drama-storytime", "input": "My roommate secretly moved her boyfriend in and expected me to pay his share of utilities", "expected": "A dramatic, conversational opener that hooks viewers into a storytime — uses natural spoken cadence and creates immediate tension"},
+  {"id": "life-hack-cleaning", "input": "How to clean grout with a cheap product from the dollar store", "expected": "A satisfying, practical hook that promises a visible result — speaks like showing a friend, not lecturing"},
+  {"id": "beauty-skincare", "input": "The one skincare step dermatologists say 90% of people skip", "expected": "A personal, slightly conspiratorial hook about skincare — feels like a friend leaning in to share a secret, not a WebMD article"},
+  {"id": "tech-phone", "input": "A hidden iPhone setting that has been draining your battery for years", "expected": "A quick, alarming hook that makes viewers grab their phone immediately — spoken urgency, not a tech blog title"}
+]

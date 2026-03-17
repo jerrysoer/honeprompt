@@ -1,0 +1,32 @@
+[
+  {
+    "id": "saas-founder-to-prospect",
+    "input": "Sender: Maya Chen, co-founder of DataPipe (ETL tool that syncs warehouse data to CRMs in real-time)\nProspect: Jordan Ellis, VP of Revenue Operations at Lattice (HR tech, 800 employees)\nContext: Jordan recently posted on LinkedIn about spending 2 days fixing a broken Salesforce sync. DataPipe solves exactly this problem.\nGoal: Get a 15-minute call",
+    "expected": "Opens by referencing Jordan's LinkedIn post about the Salesforce sync issue. Positions DataPipe as relevant without a hard sell. CTA is low-commitment (quick call, not a demo). Under 100 words. Subject line under 6 words. No 'I hope this finds you well.' Feels human, not templated."
+  },
+  {
+    "id": "recruiter-to-candidate",
+    "input": "Sender: Alex Park, senior recruiter at Stripe\nProspect: Priya Sharma, Staff Engineer at Datadog, known for her work on distributed tracing systems\nContext: Priya gave a talk at KubeCon 2025 on 'Tracing at Scale' that Alex watched. Stripe is building a new observability platform.\nGoal: Start a conversation about the role",
+    "expected": "References Priya's KubeCon talk with a specific detail (not just 'great talk'). Connects her expertise to what Stripe is building. CTA is exploratory ('worth a conversation?' not 'apply now'). Under 100 words. Feels like genuine interest, not a mass recruiter blast."
+  },
+  {
+    "id": "agency-pitching-services",
+    "input": "Sender: Tom Rivera, founder of GrowthLab (performance marketing agency specializing in DTC brands)\nProspect: Sarah Kim, Head of Marketing at Olipop (the prebiotic soda brand)\nContext: Olipop just raised a Series C and their Meta ad library shows they are running 40+ creatives with inconsistent messaging. GrowthLab helped a similar beverage brand (Poppi) cut CAC by 35%.\nGoal: Offer a free creative audit",
+    "expected": "Shows homework by referencing the Series C and the creative inconsistency (without being insulting). Name-drops the Poppi result as social proof. CTA is the free audit offer (zero commitment). Under 100 words. Tone is helpful, not salesy."
+  },
+  {
+    "id": "partnership-proposal",
+    "input": "Sender: Lisa Huang, BD lead at Notion\nProspect: Marcus Johnson, CEO of Loom (async video platform)\nContext: Both companies share a user base of remote-first teams. Notion is exploring native video embeds and wants to discuss an integration partnership.\nGoal: Explore a potential integration",
+    "expected": "Frames the partnership as mutually beneficial, not a favor. References the shared remote-work user base. CTA is an exploratory chat, not a formal proposal. Under 100 words. Tone is peer-to-peer (both are well-known companies), not deferential."
+  },
+  {
+    "id": "conference-follow-up",
+    "input": "Sender: Dev Patel, founder of an AI code review startup called ReviewBot\nProspect: Nina Chen, Engineering Director at Shopify\nContext: Dev and Nina briefly chatted at the GitHub Universe afterparty about Shopify's code review bottleneck. Nina mentioned her team spends 30% of their time on reviews.\nGoal: Continue the conversation and schedule a deeper chat",
+    "expected": "References the specific conversation at GitHub Universe (the 30% stat). Does NOT re-explain the entire product. CTA builds on the existing rapport ('pick up where we left off'). Under 100 words. Warm but not overly familiar."
+  },
+  {
+    "id": "social-post-trigger",
+    "input": "Sender: Rachel Torres, founder of BrandVoice (AI tool that maintains brand consistency across channels)\nProspect: James Liu, CMO at Calm (meditation app)\nContext: James tweeted a thread about how Calm's brand voice gets diluted across 12 different content channels and 4 agencies. BrandVoice directly addresses multi-channel brand consistency.\nGoal: Get James to try the product",
+    "expected": "Opens with the tweet thread as the hook (quotes or paraphrases a specific point). Shows how BrandVoice maps to the exact problem he described publicly. CTA is low-friction (free trial, quick look, not a sales call). Under 100 words. Feels like a genuine response to his problem, not an opportunistic pitch."
+  }
+]

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { RunReport } from "honeprompt";
+import { track } from "@/lib/analytics/track";
 
 interface ShareButtonProps {
   runId: string;
@@ -18,6 +19,7 @@ export function ShareButton({ runId, report }: ShareButtonProps) {
   ].join("\n");
 
   const handleShare = async () => {
+    track("share_clicked", { runId });
     // Try native share on mobile
     if (typeof navigator !== "undefined" && navigator.share) {
       try {

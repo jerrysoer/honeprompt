@@ -1,209 +1,145 @@
 import { defineCommand } from "citty";
-import { mkdirSync, writeFileSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import consola from "consola";
 
-const DEFAULT_STRATEGY = `# Optimization Strategy
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+// dist/cli/ → dist/ → honeprompt/ → honeprompt/templates/
+const TEMPLATES_DIR = join(__dirname, "..", "..", "templates");
 
-This document guides the HonePrompt optimizer. Write your high-level strategy here.
+interface TemplateFiles {
+  prompt: string;
+  testCases: string;
+  config: string;
+  strategy: string;
+}
 
-## Goals
-- What does a perfect output look like?
-- What quality dimensions matter most?
+function loadTemplate(name: string): TemplateFiles | null {
+  const dir = join(TEMPLATES_DIR, name);
+  if (!existsSync(dir)) return null;
 
-## Constraints
-- What should the optimizer NEVER do?
-- What patterns should it avoid?
+  const promptPath = join(dir, "prompt.md");
+  const testCasesPath = join(dir, "test-cases.json");
+  const configPath = join(dir, "honeprompt.config.ts");
+  const strategyPath = join(dir, "program.md");
 
-## Hints
-- What domain knowledge might help the optimizer?
-- What common failure modes have you seen?
-`;
+  if (!existsSync(promptPath) || !existsSync(testCasesPath) || !existsSync(configPath)) {
+    return null;
+  }
 
-const LINKEDIN_STRATEGY = `# LinkedIn Hook Optimization Strategy
+  return {
+    prompt: readFileSync(promptPath, "utf-8"),
+    testCases: readFileSync(testCasesPath, "utf-8"),
+    config: readFileSync(configPath, "utf-8"),
+    strategy: existsSync(strategyPath) ? readFileSync(strategyPath, "utf-8") : "",
+  };
+}
 
-## Goals
-- Hooks should stop the scroll in under 2 seconds
-- Create genuine curiosity, not clickbait
-- Every word must earn its place
+function getAvailableTemplates(): string[] {
+  if (!existsSync(TEMPLATES_DIR)) return [];
+  return readdirSync(TEMPLATES_DIR, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && d.name !== "_template")
+    .map((d) => d.name);
+}
 
-## Constraints
-- Never use the "remove" strategy — hooks are already short, removing makes them too vague
-- Never add emojis or hashtags
-- Avoid questions as hooks (they underperform statements on LinkedIn)
+interface RegistryEntry {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  testCaseCount: number;
+}
 
-## Hints
-- Specific numbers and timeframes outperform vague claims
-- Contrast and tension create curiosity ("I left X to do Y")
-- First-person vulnerability outperforms third-person authority
-`;
+function loadRegistry(): RegistryEntry[] {
+  const registryPath = join(TEMPLATES_DIR, "registry.json");
+  if (!existsSync(registryPath)) return [];
+  try {
+    return JSON.parse(readFileSync(registryPath, "utf-8"));
+  } catch {
+    return [];
+  }
+}
 
-const TEMPLATES: Record<
-  string,
-  { prompt: string; testCases: string; config: string; strategy: string }
-> = {
-  "linkedin-hooks": {
-    strategy: LINKEDIN_STRATEGY,
-    prompt: `You are an expert LinkedIn copywriter. Write a compelling hook (first 1-2 lines) for a LinkedIn post about the given topic.
+function printTemplateList(): void {
+  const registry = loadRegistry();
+  const available = getAvailableTemplates();
 
-Rules:
-- Start with a bold, attention-grabbing statement
-- Create curiosity or tension that makes people click "see more"
-- Keep it under 20 words
-- No hashtags, no emojis
-- Be specific, not generic
-- Avoid clickbait — the hook should be honest about the content`,
-    testCases: JSON.stringify(
-      [
-        {
-          id: "career-change",
-          input: "I quit my $300k FAANG job to build a startup",
-          expected:
-            "A specific, tension-building hook about leaving a high-paying job",
-        },
-        {
-          id: "hiring-mistake",
-          input: "The most expensive hiring mistake I ever made",
-          expected:
-            "A hook that creates curiosity about a specific costly error",
-        },
-        {
-          id: "ai-tools",
-          input: "How I use AI tools to 10x my productivity",
-          expected: "A specific, credible hook about AI productivity gains",
-        },
-        {
-          id: "management-lesson",
-          input:
-            "The leadership lesson I learned from my worst manager",
-          expected: "A hook that creates tension about a bad management experience",
-        },
-        {
-          id: "remote-work",
-          input: "Why I moved my entire team back to the office",
-          expected:
-            "A contrarian hook about returning to office work",
-        },
-        {
-          id: "fundraising",
-          input: "We raised $5M in 2 weeks — here is exactly how",
-          expected: "A specific, credible hook about fundraising speed",
-        },
-        {
-          id: "burnout",
-          input:
-            "I burned out so badly I could not open my laptop for 3 months",
-          expected: "A vulnerable, specific hook about burnout",
-        },
-        {
-          id: "cold-email",
-          input: "The cold email template that gets 40% reply rates",
-          expected: "A specific, results-oriented hook about outreach",
-        },
-        {
-          id: "product-launch",
-          input: "Our product launch flopped. Then we did this.",
-          expected:
-            "A hook with narrative tension about recovery from failure",
-        },
-        {
-          id: "salary-negotiation",
-          input: "How I negotiated a 60% raise without threatening to quit",
-          expected:
-            "A specific, actionable hook about salary negotiation",
-        },
-      ],
-      null,
-      2,
-    ),
-    config: `import type { HonePromptConfig } from "honeprompt";
+  if (registry.length === 0 && available.length === 0) {
+    consola.warn("No templates found.");
+    return;
+  }
 
-const config: HonePromptConfig = {
-  targetModel: {
-    provider: "anthropic",
-    model: "claude-sonnet-4-5-20250929",
-  },
-  optimizerModel: {
-    provider: "anthropic",
-    model: "claude-sonnet-4-5-20250929",
-  },
-  judgeModel: {
-    provider: "anthropic",
-    model: "claude-sonnet-4-5-20250929",
-  },
-  maxIterations: 25,
-  maxCostUsd: 3.0,
-  parallelTestCases: 5,
-  scoring: {
-    mode: "llm-judge",
-    criteria: \`Score the LinkedIn hook 0-100 on:
-- Hook strength (40%): Does it stop the scroll? Create genuine curiosity?
-- Specificity (25%): Does it use concrete details, not vague claims?
-- Brevity (20%): Is it under 20 words? Every word essential?
-- Authenticity (15%): Does it feel real, not clickbait?\`,
-  },
-  failureReportSize: 3,
-  targetScore: 90,
-};
+  consola.info("Available templates:\n");
 
-export default config;`,
-  },
-  blank: {
-    strategy: DEFAULT_STRATEGY,
-    prompt: `You are a helpful assistant. Complete the given task.
+  // Print registry entries (richer info)
+  const registryIds = new Set(registry.map((r) => r.id));
+  for (const entry of registry) {
+    const line = `  ${entry.id.padEnd(28)} ${entry.category.padEnd(12)} ${entry.description.slice(0, 50)}${entry.description.length > 50 ? "..." : ""}  (${entry.testCaseCount} cases)`;
+    consola.log(line);
+  }
 
-Instructions:
-- Be clear and concise
-- Follow the specific requirements in each input
-- Provide actionable output`,
-    testCases: JSON.stringify(
-      [
-        {
-          id: "test-1",
-          input: "Your first test input here",
-          expected: "What you expect the output to look like",
-        },
-        {
-          id: "test-2",
-          input: "Your second test input here",
-          expected: "What you expect the output to look like",
-        },
-        {
-          id: "test-3",
-          input: "Your third test input here",
-        },
-      ],
-      null,
-      2,
-    ),
-    config: `import type { HonePromptConfig } from "honeprompt";
+  // Print any templates not in registry
+  for (const name of available) {
+    if (!registryIds.has(name) && name !== "blank") {
+      consola.log(`  ${name.padEnd(28)} ${"".padEnd(12)} (not in registry)`);
+    }
+  }
 
-const config: HonePromptConfig = {
-  targetModel: {
-    provider: "anthropic",
-    model: "claude-sonnet-4-5-20250929",
-  },
-  optimizerModel: {
-    provider: "anthropic",
-    model: "claude-sonnet-4-5-20250929",
-  },
-  judgeModel: {
-    provider: "anthropic",
-    model: "claude-sonnet-4-5-20250929",
-  },
-  maxIterations: 25,
-  maxCostUsd: 5.0,
-  parallelTestCases: 5,
-  scoring: {
-    mode: "llm-judge",
-    criteria: "Score the output 0-100 on relevance, quality, completeness, and clarity.",
-  },
-  failureReportSize: 3,
-};
+  // Always list blank last
+  if (available.includes("blank")) {
+    consola.log(`  ${"blank".padEnd(28)} ${"general".padEnd(12)} Minimal starter template`);
+  }
 
-export default config;`,
-  },
-};
+  consola.log("");
+  consola.info("Usage: honeprompt init <template> [-d <dir>]");
+}
+
+async function interactivePicker(): Promise<string | null> {
+  const registry = loadRegistry();
+  const available = getAvailableTemplates();
+
+  if (available.length === 0) {
+    consola.error("No templates found.");
+    return null;
+  }
+
+  // Build choices: registry entries first, then unregistered, blank last
+  const registryIds = new Set(registry.map((r) => r.id));
+  const choices: Array<{ label: string; value: string }> = [];
+
+  for (const entry of registry) {
+    if (available.includes(entry.id)) {
+      choices.push({
+        label: `${entry.name} — ${entry.description.slice(0, 60)}`,
+        value: entry.id,
+      });
+    }
+  }
+
+  for (const name of available) {
+    if (!registryIds.has(name) && name !== "blank") {
+      choices.push({ label: name, value: name });
+    }
+  }
+
+  // Blank always last
+  if (available.includes("blank")) {
+    choices.push({
+      label: "Blank — Start from scratch with a minimal template",
+      value: "blank",
+    });
+  }
+
+  const selected = await consola.prompt("Choose a template:", {
+    type: "select",
+    options: choices.map((c) => ({ label: c.label, value: c.value })),
+  });
+
+  if (typeof selected === "symbol") return null; // User cancelled
+  return selected as string;
+}
 
 export const initCommand = defineCommand({
   meta: {
@@ -213,23 +149,48 @@ export const initCommand = defineCommand({
   args: {
     template: {
       type: "positional",
-      description: "Template to use (linkedin-hooks, blank)",
-      default: "blank",
+      description: "Template to use (run --list to see all)",
+      required: false,
     },
     dir: {
       type: "string",
       description: "Output directory",
       alias: "d",
     },
+    list: {
+      type: "boolean",
+      description: "List available templates",
+      default: false,
+    },
   },
-  run({ args }) {
-    const templateName = args.template || "blank";
-    const template = TEMPLATES[templateName];
+  async run({ args }) {
+    // --list flag: print table and exit
+    if (args.list) {
+      printTemplateList();
+      return;
+    }
+
+    // Determine template name
+    let templateName = args.template as string | undefined;
+
+    if (!templateName) {
+      // Interactive picker when no args
+      const picked = await interactivePicker();
+      if (!picked) {
+        consola.info("Cancelled.");
+        return;
+      }
+      templateName = picked;
+    }
+
+    const template = loadTemplate(templateName);
 
     if (!template) {
+      const available = getAvailableTemplates();
       consola.error(
-        `Unknown template: ${templateName}. Available: ${Object.keys(TEMPLATES).join(", ")}`,
+        `Unknown template: ${templateName}. Available: ${available.join(", ")}`,
       );
+      consola.info("Run 'honeprompt init --list' to see all templates.");
       process.exit(1);
     }
 
@@ -245,17 +206,11 @@ export const initCommand = defineCommand({
     mkdirSync(join(fullPath, ".honeprompt"), { recursive: true });
 
     writeFileSync(join(fullPath, "prompt.md"), template.prompt, "utf-8");
-    writeFileSync(
-      join(fullPath, "test-cases.json"),
-      template.testCases,
-      "utf-8",
-    );
-    writeFileSync(
-      join(fullPath, "honeprompt.config.ts"),
-      template.config,
-      "utf-8",
-    );
-    writeFileSync(join(fullPath, "program.md"), template.strategy, "utf-8");
+    writeFileSync(join(fullPath, "test-cases.json"), template.testCases, "utf-8");
+    writeFileSync(join(fullPath, "honeprompt.config.ts"), template.config, "utf-8");
+    if (template.strategy) {
+      writeFileSync(join(fullPath, "program.md"), template.strategy, "utf-8");
+    }
     writeFileSync(
       join(fullPath, ".gitignore"),
       ".honeprompt/\nnode_modules/\n",
@@ -267,7 +222,9 @@ export const initCommand = defineCommand({
     consola.info("  prompt.md          — Your prompt to optimize");
     consola.info("  test-cases.json    — Test cases for evaluation");
     consola.info("  honeprompt.config.ts — Configuration");
-    consola.info("  program.md         — Strategy document for the optimizer");
+    if (template.strategy) {
+      consola.info("  program.md         — Strategy document for the optimizer");
+    }
     consola.info("");
     consola.info("Next steps:");
     consola.info(`  cd ${dir}`);

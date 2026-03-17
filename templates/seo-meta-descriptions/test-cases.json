@@ -1,0 +1,42 @@
+[
+  {
+    "id": "blog-post",
+    "input": "Page Title: How to Start a Vegetable Garden in Small Spaces\nContent Summary: A step-by-step guide covering container selection, soil preparation, best vegetables for balconies and patios (tomatoes, herbs, lettuce), watering schedules, and common mistakes beginners make. Includes photos of real small-space gardens.\nTarget Keyword: small space vegetable garden",
+    "expected": "Under 160 characters. Contains 'small space vegetable garden' or a close variant naturally. Implies actionable value (learn how, step-by-step). Has a CTA element (discover, learn, start growing). Active voice. Does not start with the site name."
+  },
+  {
+    "id": "product-page",
+    "input": "Page Title: AeroPress Original Coffee Maker\nContent Summary: Product page for the AeroPress coffee maker. Features smooth, rich coffee in 1-2 minutes. Portable, durable, easy to clean. Includes 350 micro-filters. Used by baristas and travelers. $39.95. Free shipping over $50.\nTarget Keyword: AeroPress coffee maker",
+    "expected": "Under 160 characters. Contains 'AeroPress coffee maker' naturally. Highlights a key benefit (smooth coffee in minutes, portable). Includes a commercial CTA or value prop (price, free shipping, shop now). Does not read like a feature list."
+  },
+  {
+    "id": "landing-page",
+    "input": "Page Title: Email Marketing Platform for Small Businesses | MailForge\nContent Summary: MailForge is an email marketing platform designed for small businesses. Features include drag-and-drop editor, pre-built templates, audience segmentation, A/B testing, and analytics. Free plan up to 500 subscribers. Paid plans start at $15/month.\nTarget Keyword: email marketing for small business",
+    "expected": "Under 160 characters. Contains 'email marketing' and 'small business' naturally. Highlights a differentiator (free plan, ease of use). CTA oriented toward getting started. Does not just list features."
+  },
+  {
+    "id": "about-page",
+    "input": "Page Title: About Us | Greenleaf Architecture\nContent Summary: Greenleaf Architecture is a sustainable architecture firm based in Portland, Oregon, founded in 2012. Specializes in net-zero residential homes and LEED-certified commercial buildings. Team of 18 architects. Portfolio includes 200+ completed projects across the Pacific Northwest.\nTarget Keyword: sustainable architecture firm Portland",
+    "expected": "Under 160 characters. Contains 'sustainable architecture' and 'Portland' naturally. Conveys credibility (200+ projects, founded 2012). CTA could be view portfolio or contact. Does not start with 'Greenleaf Architecture is...' -- leads with value."
+  },
+  {
+    "id": "service-page",
+    "input": "Page Title: Commercial Roof Repair & Replacement Services\nContent Summary: Full-service commercial roofing company serving the Dallas-Fort Worth area. Services include emergency leak repair, flat roof replacement, TPO and EPDM installation, preventive maintenance programs. Licensed, insured, 24/7 emergency response. Free inspections. 15-year warranty on all installations.\nTarget Keyword: commercial roof repair Dallas",
+    "expected": "Under 160 characters. Contains 'commercial roof repair' and 'Dallas' naturally. Highlights a trust signal (warranty, licensed, free inspection). CTA matches the service intent (schedule inspection, call now). Conveys urgency capability (24/7)."
+  },
+  {
+    "id": "comparison-page",
+    "input": "Page Title: Notion vs Obsidian: Which Note-Taking App Is Better in 2026?\nContent Summary: Detailed comparison of Notion and Obsidian covering pricing, features, offline access, collaboration, privacy, learning curve, and mobile apps. Includes a recommendation matrix based on use case (students, teams, developers, writers). Updated for 2026 with latest features from both platforms.\nTarget Keyword: Notion vs Obsidian",
+    "expected": "Under 160 characters. Contains 'Notion vs Obsidian' naturally. Implies a clear recommendation or decision framework. Mentions it is current (2026). CTA invites the reader to find which is right for them. Does not just say 'we compare X and Y.'"
+  },
+  {
+    "id": "how-to-guide",
+    "input": "Page Title: How to File a Tax Extension in 2026 (Form 4868 Guide)\nContent Summary: Step-by-step instructions for filing IRS Form 4868 to get a 6-month tax filing extension. Covers who qualifies, the October 15 deadline, estimated tax payment requirements, how to file online vs mail, and common mistakes that trigger penalties. Includes links to IRS e-file.\nTarget Keyword: how to file a tax extension",
+    "expected": "Under 160 characters. Contains 'file a tax extension' naturally. Mentions the key benefit (6 more months). Conveys authority or completeness (step-by-step, avoid penalties). Active voice CTA. Does not start with 'This guide...'"
+  },
+  {
+    "id": "case-study-page",
+    "input": "Page Title: How Shopify Reduced Page Load Time by 40% with EdgeCache\nContent Summary: Case study detailing how EdgeCache helped Shopify reduce average page load time from 3.2s to 1.9s across their merchant storefronts. Covers the technical implementation, CDN architecture changes, and the resulting 12% increase in conversion rate. Includes performance benchmarks and architecture diagrams.\nTarget Keyword: reduce page load time",
+    "expected": "Under 160 characters. Contains 'page load time' or 'reduce page load time' naturally. Leads with the impressive stat (40% faster, 12% conversion lift). Uses Shopify as social proof. CTA to read the case study or see how. Does not reveal so much that there is no reason to click."
+  }
+]

@@ -45,6 +45,9 @@ export default function RootLayout({
             <Link href="/runs" className="text-text-muted hover:text-text transition-colors">
               Runs
             </Link>
+            <Link href="/templates" className="text-text-muted hover:text-text transition-colors">
+              Templates
+            </Link>
             <a
               href="https://github.com/jerrysoer/honeprompt"
               target="_blank"
