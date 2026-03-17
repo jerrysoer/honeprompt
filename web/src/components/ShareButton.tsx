@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { RunReport } from "promptloop";
+import type { RunReport } from "honeprompt";
 
 interface ShareButtonProps {
   runId: string;
@@ -22,7 +22,7 @@ export function ShareButton({ runId, report }: ShareButtonProps) {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
-          title: `PromptLoop: ${report.baselineScore} → ${report.finalScore}`,
+          title: `HonePrompt: ${report.baselineScore} → ${report.finalScore}`,
           text: shareText,
         });
         return;

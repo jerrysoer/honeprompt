@@ -8,7 +8,7 @@ import { estimateCommand } from "./estimate.js";
 
 const main = defineCommand({
   meta: {
-    name: "promptloop",
+    name: "honeprompt",
     version: "0.2.0",
     description: "Autonomous prompt optimizer",
   },

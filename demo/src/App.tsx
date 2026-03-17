@@ -15,7 +15,7 @@ export function App() {
         <CTASection />
         <footer className="text-center text-xs text-text-muted pt-8 border-t border-border">
           <p>
-            Built with PromptLoop — autonomous prompt optimization using the Karpathy autoresearch pattern.
+            Built with HonePrompt — autonomous prompt optimization using the Karpathy autoresearch pattern.
           </p>
           <p className="mt-1">
             Data from a real optimization run. No API calls are made by this demo.

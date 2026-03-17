@@ -1,4 +1,4 @@
-// PromptLoop — Public API for programmatic use
+// HonePrompt — Public API for programmatic use
 
 export type {
   TestCase,
@@ -14,7 +14,7 @@ export type {
   StopReason,
   ModelProvider,
   ModelConfig,
-  PromptLoopConfig,
+  HonePromptConfig,
   LLMResponse,
   LLMToolCall,
   LLMToolResponse,

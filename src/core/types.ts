@@ -119,7 +119,7 @@ export interface ModelConfig {
   baseUrl?: string;
 }
 
-export interface PromptLoopConfig {
+export interface HonePromptConfig {
   /** Model that executes the prompt being optimized */
   targetModel: ModelConfig;
   /** Model that generates mutations */

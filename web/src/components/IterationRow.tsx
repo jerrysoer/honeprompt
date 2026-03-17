@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { IterationResult } from "promptloop";
+import type { IterationResult } from "honeprompt";
 import { StrategyBadge } from "./StrategyBadge";
 import { StatusBadge } from "./StatusBadge";
 import { ScoreBar } from "./ScoreBar";

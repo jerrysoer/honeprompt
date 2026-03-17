@@ -7,13 +7,13 @@ import {
   readdirSync,
 } from "node:fs";
 import { join } from "node:path";
-import { run, generateSVG } from "promptloop";
+import { run, generateSVG } from "honeprompt";
 import type {
   IterationResult,
   RunReport,
-  PromptLoopConfig,
+  HonePromptConfig,
   ModelConfig,
-} from "promptloop";
+} from "honeprompt";
 import { MODELS } from "./models";
 import { sanitizeError } from "./sanitize";
 
@@ -77,7 +77,7 @@ export interface StartRunParams {
 
 // ── State (persisted on globalThis to survive HMR in dev) ───
 
-const globalKey = "__promptloop_active_runs__" as const;
+const globalKey = "__honeprompt_active_runs__" as const;
 
 function getActiveRuns(): Map<string, ActiveRun> {
   const g = globalThis as Record<string, unknown>;
@@ -88,7 +88,7 @@ function getActiveRuns(): Map<string, ActiveRun> {
 }
 
 const RUNS_DIR = process.env.VERCEL
-  ? "/tmp/promptloop-runs"
+  ? "/tmp/honeprompt-runs"
   : join(process.cwd(), "..", "runs");
 
 // ── Public API ──────────────────────────────────────────────
@@ -153,7 +153,7 @@ export function startRun(params: StartRunParams): string {
     ? { ...baseModelConfig, apiKey: params.apiKey }
     : baseModelConfig;
 
-  const config: PromptLoopConfig = {
+  const config: HonePromptConfig = {
     targetModel: modelConfig,
     optimizerModel: modelConfig,
     judgeModel: modelConfig,

@@ -1,6 +1,6 @@
 "use client";
 
-import type { IterationResult } from "promptloop";
+import type { IterationResult } from "honeprompt";
 import { IterationRow } from "./IterationRow";
 
 export function IterationLog({

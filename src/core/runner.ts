@@ -8,7 +8,7 @@ import { generatePNG } from "./chart.js";
 import type {
   IterationResult,
   MutationStrategy,
-  PromptLoopConfig,
+  HonePromptConfig,
   RunReport,
   StopReason,
   TestCase,
@@ -22,7 +22,7 @@ export type StrategyStats = Record<MutationStrategy, { attempts: number; kept: n
 export interface RunOptions {
   promptPath: string;
   testCasesPath: string;
-  config: PromptLoopConfig;
+  config: HonePromptConfig;
   outputDir: string;
   evalFn?: EvalFunction;
   /** Called after each iteration (baseline + loop). Enables real-time streaming. */
@@ -302,7 +302,7 @@ export async function run(options: RunOptions): Promise<RunReport> {
 
   // Summary
   consola.box(
-    `PromptLoop Complete\n\n` +
+    `HonePrompt Complete\n\n` +
       `Baseline: ${report.baselineScore}/100\n` +
       `Final:    ${report.finalScore}/100\n` +
       `Improvement: +${report.improvement} points\n` +

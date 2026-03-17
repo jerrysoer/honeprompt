@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { complete } from "promptloop";
+import { complete } from "honeprompt";
 import { sanitizeError } from "@/lib/sanitize";
 
 export async function POST(request: NextRequest) {

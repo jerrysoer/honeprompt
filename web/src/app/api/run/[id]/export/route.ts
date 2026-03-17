@@ -60,7 +60,7 @@ export async function GET(
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PromptLoop Report — Run ${id}</title>
+  <title>HonePrompt Report — Run ${id}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
@@ -87,7 +87,7 @@ export async function GET(
 </head>
 <body>
   <div class="container">
-    <h1>PromptLoop Optimization Report</h1>
+    <h1>HonePrompt Optimization Report</h1>
     <p style="color:#6b7280">Run ${id} &middot; ${new Date(report.startedAt).toLocaleDateString()}</p>
 
     <div class="stats">
@@ -138,7 +138,7 @@ export async function GET(
     </table>` : ""}
 
     <div class="footer">
-      Optimized with <strong>PromptLoop</strong> &mdash; github.com/jerrysoer/promptloop
+      Optimized with <strong>HonePrompt</strong> &mdash; github.com/jerrysoer/honeprompt
     </div>
   </div>
 </body>
@@ -147,7 +147,7 @@ export async function GET(
   return new NextResponse(html, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      "Content-Disposition": `attachment; filename="promptloop-report-${id}.html"`,
+      "Content-Disposition": `attachment; filename="honeprompt-report-${id}.html"`,
     },
   });
 }

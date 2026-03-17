@@ -203,7 +203,7 @@ export function SetupForm() {
             What prompt do you want to optimize?
           </h2>
           <p className="text-text-muted text-sm mb-6">
-            Paste your system prompt below. PromptLoop will iteratively
+            Paste your system prompt below. HonePrompt will iteratively
             mutate it to maximize scores on your test cases.
           </p>
           <textarea

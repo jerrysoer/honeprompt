@@ -1,6 +1,6 @@
-import type { PromptLoopConfig } from "./src/core/types.js";
+import type { HonePromptConfig } from "./src/core/types.js";
 
-const config: PromptLoopConfig = {
+const config: HonePromptConfig = {
   targetModel: {
     provider: "anthropic",
     model: "claude-sonnet-4-5-20250929",

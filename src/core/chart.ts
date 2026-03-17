@@ -24,7 +24,7 @@ export function generateSVG(
   history: IterationResult[],
   options: ChartOptions = {},
 ): string {
-  const { width = 800, height = 400, title = "PromptLoop Optimization" } = options;
+  const { width = 800, height = 400, title = "HonePrompt Optimization" } = options;
   const padding = { top: 50, right: 60, bottom: 50, left: 60 };
 
   const chartW = width - padding.left - padding.right;

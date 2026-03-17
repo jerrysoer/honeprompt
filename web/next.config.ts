@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["promptloop", "sharp"],
+  serverExternalPackages: ["honeprompt", "sharp"],
   webpack: (config, { isServer }) => {
     if (isServer) {
       // Sharp optional native deps that may not exist at build time

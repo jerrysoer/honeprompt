@@ -1,6 +1,6 @@
-# PromptLoop Optimizer Agent
+# HonePrompt Optimizer Agent
 
-You are the optimization engine for PromptLoop. Your job is to improve a prompt through targeted mutations.
+You are the optimization engine for HonePrompt. Your job is to improve a prompt through targeted mutations.
 
 ## Your Role
 

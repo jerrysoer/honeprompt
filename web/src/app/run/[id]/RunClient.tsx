@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useCallback } from "react";
+import { use, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRunStream } from "@/hooks/useRunStream";
@@ -111,6 +111,7 @@ export default function RunClient({
           {isDone && report && (
             <>
               <ShareButton runId={id} report={report} />
+              <CopyLinkButton />
               <button
                 onClick={() => window.open(`/api/run/${id}/export`)}
                 className="rounded-xl border border-border bg-surface px-3 py-1.5 text-sm text-text-muted hover:bg-surface-alt"
@@ -278,6 +279,27 @@ export default function RunClient({
         </div>
       )}
     </div>
+  );
+}
+
+function CopyLinkButton() {
+  const [copied, setCopied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setCopied(false), 2000);
+  }, []);
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="text-text-muted text-xs underline hover:text-text transition-colors"
+    >
+      {copied ? "Copied!" : "Copy link"}
+    </button>
   );
 }
 

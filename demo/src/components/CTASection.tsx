@@ -5,7 +5,7 @@ export function CTASection() {
         Try it on your own prompts
       </h2>
       <p className="text-text-muted max-w-lg mx-auto">
-        PromptLoop is an open-source CLI tool that optimizes any prompt using
+        HonePrompt is an open-source CLI tool that optimizes any prompt using
         the Karpathy autoresearch pattern. Works with Claude, GPT-4, and any
         OpenAI-compatible API.
       </p>
@@ -17,7 +17,7 @@ export function CTASection() {
             Install
           </div>
           <code className="text-sm font-mono text-accent">
-            npm install -g promptloop
+            npm install -g honeprompt
           </code>
         </div>
 
@@ -27,14 +27,14 @@ export function CTASection() {
             Quick Start
           </div>
           <code className="text-sm font-mono text-accent">
-            promptloop init && promptloop run
+            honeprompt init && honeprompt run
           </code>
         </div>
       </div>
 
       <div className="flex items-center justify-center gap-4 pt-2">
         <a
-          href="https://github.com/jerrysoer/promptloop"
+          href="https://github.com/jerrysoer/honeprompt"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
@@ -46,7 +46,7 @@ export function CTASection() {
         </a>
 
         <a
-          href="https://www.npmjs.com/package/promptloop"
+          href="https://www.npmjs.com/package/honeprompt"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-muted hover:bg-surface-alt transition-colors"

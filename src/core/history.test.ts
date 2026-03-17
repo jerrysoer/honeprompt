@@ -8,7 +8,7 @@ import type { IterationResult } from "./types.js";
 const TMP_DIR = tmpdir();
 
 function makeTmpPath(): string {
-  return join(TMP_DIR, `promptloop-test-${Date.now()}-${Math.random().toString(36).slice(2)}.jsonl`);
+  return join(TMP_DIR, `honeprompt-test-${Date.now()}-${Math.random().toString(36).slice(2)}.jsonl`);
 }
 
 function makeIteration(overrides: Partial<IterationResult> = {}): IterationResult {

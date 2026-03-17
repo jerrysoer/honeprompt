@@ -11,24 +11,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const run = getRun(id);
 
   if (!run?.report) {
-    return { title: `Run ${id} — PromptLoop` };
+    return { title: `Run ${id} — HonePrompt` };
   }
 
   const { baselineScore, finalScore, improvement, iterations, totalCostUsd } =
     run.report;
 
   return {
-    title: `${baselineScore} → ${finalScore} (+${improvement}) — PromptLoop`,
+    title: `${baselineScore} → ${finalScore} (+${improvement}) — HonePrompt`,
     description: `Optimized in ${iterations} iterations for $${totalCostUsd.toFixed(2)}`,
     openGraph: {
-      title: `${baselineScore} → ${finalScore} (+${improvement}) — PromptLoop`,
+      title: `${baselineScore} → ${finalScore} (+${improvement}) — HonePrompt`,
       description: `Optimized in ${iterations} iterations for $${totalCostUsd.toFixed(2)}`,
       images: [{ url: `/api/run/${id}/og`, width: 1200, height: 630 }],
       type: "article",
     },
     twitter: {
       card: "summary_large_image",
-      title: `${baselineScore} → ${finalScore} (+${improvement}) — PromptLoop`,
+      title: `${baselineScore} → ${finalScore} (+${improvement}) — HonePrompt`,
       description: `Optimized in ${iterations} iterations for $${totalCostUsd.toFixed(2)}`,
       images: [`/api/run/${id}/og`],
     },

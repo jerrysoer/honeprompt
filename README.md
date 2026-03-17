@@ -1,12 +1,12 @@
-# PromptLoop
+# HonePrompt
 
 **Autonomous prompt optimizer.** Give it a prompt and test cases — it will iteratively mutate, score, and improve your prompt using the Karpathy autoresearch pattern.
 
-[![npm version](https://img.shields.io/npm/v/promptloop)](https://www.npmjs.com/package/promptloop)
+[![npm version](https://img.shields.io/npm/v/honeprompt)](https://www.npmjs.com/package/honeprompt)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-[![Optimized with PromptLoop](https://img.shields.io/badge/prompts-optimized%20with%20PromptLoop-C2410C)](https://github.com/jerrysoer/promptloop)
+[![Optimized with HonePrompt](https://img.shields.io/badge/prompts-optimized%20with%20HonePrompt-C2410C)](https://github.com/jerrysoer/honeprompt)
 
-> **Try the live demo** at [promptloop.vercel.app](https://promptloop.vercel.app)
+> **Try the live demo** at [honeprompt.vercel.app](https://honeprompt.vercel.app)
 
 ### Before / After
 
@@ -15,9 +15,9 @@
 | **Original prompt** (hand-written) | 55 / 100 |
 | **Optimized prompt** (15 iterations, $1.40) | 82 / 100 |
 
-### PromptLoop vs. Alternatives
+### HonePrompt vs. Alternatives
 
-| Feature | PromptLoop | DSPy | PromptFoo | OpenAI Optimizer |
+| Feature | HonePrompt | DSPy | PromptFoo | OpenAI Optimizer |
 |---|---|---|---|---|
 | Optimizes individual prompts | Yes | No (LLM programs) | No (testing only) | Yes |
 | TypeScript-native | Yes | No (Python) | Yes | No (Python) |
@@ -31,8 +31,8 @@
 | Self-hostable | Yes | Yes | Yes | No |
 
 ```
-promptloop init linkedin-hooks
-promptloop run
+honeprompt init linkedin-hooks
+honeprompt run
 ```
 
 ## How It Works
@@ -65,42 +65,42 @@ Load prompt.md + test-cases.json
 ### Install
 
 ```bash
-npm install -g promptloop
+npm install -g honeprompt
 ```
 
 ### Create a project
 
 ```bash
-promptloop init linkedin-hooks
+honeprompt init linkedin-hooks
 cd linkedin-hooks
 ```
 
 This creates:
 - `prompt.md` — the prompt to optimize
 - `test-cases.json` — test cases with inputs and expected outputs
-- `promptloop.config.ts` — model selection, budget, scoring criteria
+- `honeprompt.config.ts` — model selection, budget, scoring criteria
 - `program.md` — strategy document that shapes optimizer behavior
 
 ### Run optimization
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
-promptloop run
+honeprompt run
 ```
 
 ### Score without optimizing
 
 ```bash
-promptloop eval
+honeprompt eval
 ```
 
 ## Configuration
 
 ```typescript
-// promptloop.config.ts
-import type { PromptLoopConfig } from "promptloop";
+// honeprompt.config.ts
+import type { HonePromptConfig } from "honeprompt";
 
-const config: PromptLoopConfig = {
+const config: HonePromptConfig = {
   // Model that executes your prompt
   targetModel: {
     provider: "anthropic",
@@ -154,7 +154,7 @@ For programmatic scoring, export a function:
 
 ```typescript
 // eval.ts
-import type { TestCase } from "promptloop";
+import type { TestCase } from "honeprompt";
 
 export default function score(output: string, testCase: TestCase): number {
   // Return 0-100
@@ -203,7 +203,7 @@ One mutation per iteration. The optimizer learns from history — if a strategy 
 Add a `program.md` file to guide the optimizer with domain knowledge, constraints, or preferred mutation patterns. The strategy document is prepended to the optimizer system prompt.
 
 ```bash
-promptloop run --strategy program.md
+honeprompt run --strategy program.md
 ```
 
 If `program.md` exists in your project directory, it is auto-detected.
@@ -228,7 +228,7 @@ Set `mode: "image-gen"` to optimize prompts for image generation models (DALL-E)
 
 ## Smart Stopping
 
-PromptLoop stops automatically when:
+HonePrompt stops automatically when:
 
 - **Target score reached** — score hits your `targetScore` threshold
 - **Budget exhausted** — total cost exceeds `maxCostUsd`
@@ -241,7 +241,7 @@ Stopped or cancelled runs can be resumed. The JSONL history file is append-only 
 
 ```bash
 # CLI: resumes from the last saved state
-promptloop run --resume
+honeprompt run --resume
 ```
 
 In the web UI, completed/cancelled/plateau runs show a "Continue Run" button.
@@ -249,18 +249,18 @@ In the web UI, completed/cancelled/plateau runs show a "Continue Run" button.
 ## CLI Reference
 
 ```bash
-promptloop init [template]       # Scaffold a project (templates: linkedin-hooks, blank)
-promptloop run [options]         # Run optimization loop
-promptloop eval [options]        # Score current prompt (no optimization)
-promptloop generate-tests [opt]  # Generate test cases from a prompt using AI
-promptloop diff [options]        # Show diff between original and optimized prompt
-promptloop estimate [options]    # Estimate cost for an optimization run
+honeprompt init [template]       # Scaffold a project (templates: linkedin-hooks, blank)
+honeprompt run [options]         # Run optimization loop
+honeprompt eval [options]        # Score current prompt (no optimization)
+honeprompt generate-tests [opt]  # Generate test cases from a prompt using AI
+honeprompt diff [options]        # Show diff between original and optimized prompt
+honeprompt estimate [options]    # Estimate cost for an optimization run
 
 # Run options
   -p, --prompt <path>      # Prompt file (default: prompt.md)
   -t, --tests <path>       # Test cases file (default: test-cases.json)
-  -c, --config <path>      # Config file (default: promptloop.config.ts)
-  -o, --output <path>      # Output directory (default: .promptloop)
+  -c, --config <path>      # Config file (default: honeprompt.config.ts)
+  -o, --output <path>      # Output directory (default: .honeprompt)
   -n, --iterations <n>     # Override max iterations
   --budget <usd>           # Override max cost
   --strategy <path>        # Strategy document (default: auto-detect program.md)
@@ -270,14 +270,14 @@ promptloop estimate [options]    # Estimate cost for an optimization run
 ## Programmatic API
 
 ```typescript
-import { run, scorePrompt, generateMutation } from "promptloop";
+import { run, scorePrompt, generateMutation } from "honeprompt";
 
 // Run the full optimization loop
 const report = await run({
   promptPath: "./prompt.md",
   testCasesPath: "./test-cases.json",
   config: { /* ... */ },
-  outputDir: "./.promptloop",
+  outputDir: "./.honeprompt",
 });
 
 console.log(`Improved ${report.baselineScore} -> ${report.finalScore}`);
@@ -286,7 +286,7 @@ console.log(`Stop reason: ${report.stopReason}`);
 
 ## Output Files
 
-After a run, `.promptloop/` contains:
+After a run, `.honeprompt/` contains:
 
 - `history.jsonl` — every iteration as a JSON line (append-only, crash-safe)
 - `progress.png` — score chart with baseline, improvements, and reverts
@@ -294,10 +294,10 @@ After a run, `.promptloop/` contains:
 
 ### Badge
 
-Add this badge to your project README to show your prompts were optimized with PromptLoop:
+Add this badge to your project README to show your prompts were optimized with HonePrompt:
 
 ```markdown
-[![Optimized with PromptLoop](https://img.shields.io/badge/prompts-optimized%20with%20PromptLoop-C2410C)](https://github.com/jerrysoer/promptloop)
+[![Optimized with HonePrompt](https://img.shields.io/badge/prompts-optimized%20with%20HonePrompt-C2410C)](https://github.com/jerrysoer/honeprompt)
 ```
 
 ## Cost
@@ -313,15 +313,15 @@ Typical costs for a 25-iteration run with 10 test cases:
 
 Set `maxCostUsd` in config to cap spending. The loop stops when the budget is reached.
 
-Use `promptloop estimate` to preview costs before starting a run.
+Use `honeprompt estimate` to preview costs before starting a run.
 
 ## FAQ
 
 **How is this different from DSPy?**
-DSPy optimizes LLM programs (chains of calls). PromptLoop optimizes individual prompts — simpler scope, TypeScript-native, works with any model.
+DSPy optimizes LLM programs (chains of calls). HonePrompt optimizes individual prompts — simpler scope, TypeScript-native, works with any model.
 
 **How is this different from PromptFoo?**
-PromptFoo tests prompts. PromptLoop optimizes them. They are complementary — use PromptFoo to evaluate, PromptLoop to improve.
+PromptFoo tests prompts. HonePrompt optimizes them. They are complementary — use PromptFoo to evaluate, HonePrompt to improve.
 
 **Does it work with local models?**
 Yes — set `baseUrl` in your model config to point to any OpenAI-compatible API (Ollama, vLLM, etc.).
@@ -330,7 +330,7 @@ Yes — set `baseUrl` in your model config to point to any OpenAI-compatible API
 Yes — use the `claude-cli` provider with a Claude Max subscription for zero-cost optimization runs.
 
 **Can I resume a failed run?**
-Yes — use `promptloop run --resume` in the CLI or the "Continue Run" button in the web UI. State is reconstructed from the crash-safe JSONL history file.
+Yes — use `honeprompt run --resume` in the CLI or the "Continue Run" button in the web UI. State is reconstructed from the crash-safe JSONL history file.
 
 ## License
 

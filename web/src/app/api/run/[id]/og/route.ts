@@ -33,7 +33,7 @@ export async function GET(
 
   <!-- Stats panel (right 40%) -->
   <g transform="translate(750, 80)">
-    <text x="0" y="0" fill="#e6edf3" font-size="32" font-weight="700" font-family="system-ui, sans-serif">PromptLoop</text>
+    <text x="0" y="0" fill="#e6edf3" font-size="32" font-weight="700" font-family="system-ui, sans-serif">HonePrompt</text>
 
     <text x="0" y="70" fill="#8b949e" font-size="16" font-family="system-ui">Baseline</text>
     <text x="0" y="100" fill="#e6edf3" font-size="48" font-weight="700" font-family="monospace">${baselineScore}</text>
@@ -48,7 +48,7 @@ export async function GET(
   </g>
 
   <!-- Bottom strip -->
-  <text x="1180" y="610" text-anchor="end" fill="#484f58" font-size="14" font-family="system-ui">promptloop.vercel.app</text>
+  <text x="1180" y="610" text-anchor="end" fill="#484f58" font-size="14" font-family="system-ui">honeprompt.vercel.app</text>
 </svg>`;
 
   // Convert SVG to PNG via sharp

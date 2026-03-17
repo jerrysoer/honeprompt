@@ -10,7 +10,7 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-  title: "PromptLoop — Autonomous Prompt Optimizer",
+  title: "HonePrompt — Autonomous Prompt Optimizer",
   description:
     "Iteratively mutate, score, and improve your LLM prompts. Paste a prompt, add test cases, and let the optimizer find the best version.",
   metadataBase: new URL(
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
       : "http://localhost:3000",
   ),
   openGraph: {
-    title: "PromptLoop — Autonomous Prompt Optimizer",
+    title: "HonePrompt — Autonomous Prompt Optimizer",
     description:
       "Iteratively mutate, score, and improve your LLM prompts.",
     type: "website",
@@ -40,13 +40,13 @@ export default function RootLayout({
         <div className="mx-auto max-w-3xl px-5 py-8 sm:px-8 sm:py-12">
           <nav className="mb-8 flex items-center gap-6 text-sm">
             <Link href="/" className="font-heading text-lg font-semibold hover:text-accent transition-colors">
-              PromptLoop
+              HonePrompt
             </Link>
             <Link href="/runs" className="text-text-muted hover:text-text transition-colors">
               Runs
             </Link>
             <a
-              href="https://github.com/jerrysoer/promptloop"
+              href="https://github.com/jerrysoer/honeprompt"
               target="_blank"
               rel="noopener noreferrer"
               className="ml-auto text-text-muted hover:text-text transition-colors"

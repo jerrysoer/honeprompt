@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "If the file just written or edited appears to be a prompt file (filename contains 'prompt', 'system-prompt', or file is a SKILL.md, or content starts with 'You are'), briefly suggest: 'Prompt file updated. Run /honeprompt:optimize-prompt {filepath} to test and improve it.' Otherwise, say nothing."
+          }
+        ]
+      }
+    ]
+  }
+}

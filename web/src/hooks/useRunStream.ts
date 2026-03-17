@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { IterationResult, RunReport } from "promptloop";
+import type { IterationResult, RunReport } from "honeprompt";
 
 export interface RunStreamState {
   iterations: IterationResult[];

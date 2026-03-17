@@ -1,7 +1,7 @@
 node_modules/
 dist/
 .next/
-.promptloop/
+.honeprompt/
 /runs/
 .claude/
 *.tgz

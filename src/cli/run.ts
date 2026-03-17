@@ -5,7 +5,7 @@ import { pathToFileURL } from "node:url";
 import consola from "consola";
 import { run } from "../core/runner.js";
 import { readHistory } from "../core/history.js";
-import type { PromptLoopConfig } from "../core/types.js";
+import type { HonePromptConfig } from "../core/types.js";
 import type { EvalFunction } from "../core/scorer.js";
 
 export const runCommand = defineCommand({
@@ -30,13 +30,13 @@ export const runCommand = defineCommand({
       type: "string",
       description: "Path to config file",
       alias: "c",
-      default: "promptloop.config.ts",
+      default: "honeprompt.config.ts",
     },
     output: {
       type: "string",
       description: "Output directory for results",
       alias: "o",
-      default: ".promptloop",
+      default: ".honeprompt",
     },
     iterations: {
       type: "string",
@@ -54,7 +54,7 @@ export const runCommand = defineCommand({
     },
     resume: {
       type: "boolean",
-      description: "Resume from most recent run in .promptloop/",
+      description: "Resume from most recent run in .honeprompt/",
       default: false,
     },
   },
@@ -70,7 +70,7 @@ export const runCommand = defineCommand({
     // Validate files exist
     if (!existsSync(promptPath)) {
       consola.error(`Prompt file not found: ${promptPath}`);
-      consola.info('Run "promptloop init" to create a new project');
+      consola.info('Run "honeprompt init" to create a new project');
       process.exit(1);
     }
     if (!existsSync(testCasesPath)) {
@@ -79,11 +79,11 @@ export const runCommand = defineCommand({
     }
 
     // Load config
-    let config: PromptLoopConfig;
+    let config: HonePromptConfig;
     if (existsSync(configPath)) {
       const configModule = (await import(
         pathToFileURL(configPath).href
-      )) as { default: PromptLoopConfig };
+      )) as { default: HonePromptConfig };
       config = configModule.default;
     } else {
       consola.warn("No config file found, using defaults");
@@ -179,7 +179,7 @@ export const runCommand = defineCommand({
       consola.info(`Resuming from ${previousHistory.length} previous iterations`);
     }
 
-    consola.box("PromptLoop — Autonomous Prompt Optimizer");
+    consola.box("HonePrompt — Autonomous Prompt Optimizer");
 
     await run({
       promptPath,

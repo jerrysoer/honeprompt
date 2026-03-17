@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import consola from "consola";
 import { scorePrompt, type EvalFunction } from "../core/scorer.js";
-import type { PromptLoopConfig, TestCase } from "../core/types.js";
+import type { HonePromptConfig, TestCase } from "../core/types.js";
 
 export const evalCommand = defineCommand({
   meta: {
@@ -28,7 +28,7 @@ export const evalCommand = defineCommand({
       type: "string",
       description: "Path to config file",
       alias: "c",
-      default: "promptloop.config.ts",
+      default: "honeprompt.config.ts",
     },
   },
   async run({ args }) {
@@ -54,11 +54,11 @@ export const evalCommand = defineCommand({
     );
 
     // Load config
-    let config: PromptLoopConfig;
+    let config: HonePromptConfig;
     if (existsSync(configPath)) {
       const configModule = (await import(
         pathToFileURL(configPath).href
-      )) as { default: PromptLoopConfig };
+      )) as { default: HonePromptConfig };
       config = configModule.default;
     } else {
       config = {

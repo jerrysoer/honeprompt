@@ -1,0 +1,13 @@
+{
+  "name": "honeprompt",
+  "version": "1.0.0",
+  "description": "Autonomous prompt optimizer. Run /honeprompt:optimize-prompt to iteratively improve any prompt file using mutation strategies and LLM-as-judge scoring.",
+  "author": {
+    "name": "Jerry Soer",
+    "url": "https://github.com/jerrysoer"
+  },
+  "homepage": "https://honeprompt.vercel.app",
+  "repository": "https://github.com/jerrysoer/honeprompt",
+  "license": "MIT",
+  "keywords": ["prompt-optimization", "prompt-engineering", "autoresearch", "llm-judge", "eval"]
+}

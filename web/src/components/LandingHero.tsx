@@ -1,5 +1,5 @@
-import { generateSVG } from "promptloop";
-import type { IterationResult } from "promptloop";
+import { generateSVG } from "honeprompt";
+import type { IterationResult } from "honeprompt";
 
 // Static demo data — a realistic optimization curve from a linkedin-hooks run
 const DEMO_HISTORY: IterationResult[] = [
@@ -26,13 +26,13 @@ export function LandingHero() {
   const chartSVG = generateSVG(DEMO_HISTORY, {
     width: 800,
     height: 400,
-    title: "PromptLoop Optimization",
+    title: "HonePrompt Optimization",
   });
 
   return (
     <section className="mb-12 text-center">
       <h1 className="font-heading text-4xl sm:text-5xl font-normal">
-        PromptLoop
+        HonePrompt
       </h1>
       <p className="mt-3 text-lg text-text-muted">
         Autonomous prompt optimization powered by iterative mutation and LLM judging

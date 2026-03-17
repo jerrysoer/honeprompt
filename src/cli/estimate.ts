@@ -87,7 +87,7 @@ export const estimateCommand = defineCommand({
     const totalMin = baselineCost + costPerIter * iterations * 0.8; // optimistic
     const totalMax = baselineCost + costPerIter * iterations * 1.2; // pessimistic
 
-    console.log("\nPromptLoop Cost Estimate");
+    console.log("\nHonePrompt Cost Estimate");
     console.log("========================\n");
     console.log(`Model:       ${modelId}`);
     console.log(`Prompt:      ~${promptTokens} tokens`);

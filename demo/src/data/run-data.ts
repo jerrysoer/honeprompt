@@ -1,4 +1,4 @@
-// ── Types (inlined from promptloop core) ────────────────────
+// ── Types (inlined from honeprompt core) ────────────────────
 
 export interface Score {
   value: number;

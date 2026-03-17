@@ -5,7 +5,7 @@ import consola from "consola";
 
 const DEFAULT_STRATEGY = `# Optimization Strategy
 
-This document guides the PromptLoop optimizer. Write your high-level strategy here.
+This document guides the HonePrompt optimizer. Write your high-level strategy here.
 
 ## Goals
 - What does a perfect output look like?
@@ -116,9 +116,9 @@ Rules:
       null,
       2,
     ),
-    config: `import type { PromptLoopConfig } from "promptloop";
+    config: `import type { HonePromptConfig } from "honeprompt";
 
-const config: PromptLoopConfig = {
+const config: HonePromptConfig = {
   targetModel: {
     provider: "anthropic",
     model: "claude-sonnet-4-5-20250929",
@@ -176,9 +176,9 @@ Instructions:
       null,
       2,
     ),
-    config: `import type { PromptLoopConfig } from "promptloop";
+    config: `import type { HonePromptConfig } from "honeprompt";
 
-const config: PromptLoopConfig = {
+const config: HonePromptConfig = {
   targetModel: {
     provider: "anthropic",
     model: "claude-sonnet-4-5-20250929",
@@ -242,7 +242,7 @@ export const initCommand = defineCommand({
     }
 
     mkdirSync(fullPath, { recursive: true });
-    mkdirSync(join(fullPath, ".promptloop"), { recursive: true });
+    mkdirSync(join(fullPath, ".honeprompt"), { recursive: true });
 
     writeFileSync(join(fullPath, "prompt.md"), template.prompt, "utf-8");
     writeFileSync(
@@ -251,14 +251,14 @@ export const initCommand = defineCommand({
       "utf-8",
     );
     writeFileSync(
-      join(fullPath, "promptloop.config.ts"),
+      join(fullPath, "honeprompt.config.ts"),
       template.config,
       "utf-8",
     );
     writeFileSync(join(fullPath, "program.md"), template.strategy, "utf-8");
     writeFileSync(
       join(fullPath, ".gitignore"),
-      ".promptloop/\nnode_modules/\n",
+      ".honeprompt/\nnode_modules/\n",
       "utf-8",
     );
 
@@ -266,12 +266,12 @@ export const initCommand = defineCommand({
     consola.info("Files created:");
     consola.info("  prompt.md          — Your prompt to optimize");
     consola.info("  test-cases.json    — Test cases for evaluation");
-    consola.info("  promptloop.config.ts — Configuration");
+    consola.info("  honeprompt.config.ts — Configuration");
     consola.info("  program.md         — Strategy document for the optimizer");
     consola.info("");
     consola.info("Next steps:");
     consola.info(`  cd ${dir}`);
     consola.info("  # Edit prompt.md and test-cases.json");
-    consola.info("  promptloop run");
+    consola.info("  honeprompt run");
   },
 });
