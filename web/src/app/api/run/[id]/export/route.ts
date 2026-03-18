@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getRun, getRunSVG } from "@/lib/run-manager";
 
+export const maxDuration = 300;
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },

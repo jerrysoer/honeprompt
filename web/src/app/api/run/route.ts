@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { startRun, type StartRunParams } from "@/lib/run-manager";
 import { MODELS } from "@/lib/models";
 
+export const maxDuration = 300;
+
 export async function POST(request: NextRequest) {
   const body = (await request.json()) as StartRunParams;
 

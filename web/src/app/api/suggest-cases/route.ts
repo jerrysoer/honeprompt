@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { complete } from "honeprompt";
 import { sanitizeError } from "@/lib/sanitize";
 
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   const { prompt, apiKey } = (await request.json()) as {
     prompt: string;
